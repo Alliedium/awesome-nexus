@@ -223,6 +223,8 @@ Ensure that image has been created:
 docker image ls
 ```
 
+![111](https://user-images.githubusercontent.com/74211642/205273975-2ce10973-82d7-4f2d-a937-89e9b4626fd9.png)
+
 ### Mount a host directory as the volume
 
 Use the following commands to create a directory for persistent data and change its owner to UID 200 (cause this directory needs to be writable by the Nexus process, which runs as UID 200 - this can be checked in Dockerfile):
