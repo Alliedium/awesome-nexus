@@ -12,14 +12,17 @@ Official documentation:
 ## Prerequisite steps:
 * Rocky Linux 8
 
+Guide [How to install Rocky Linux 8.6](https://docs.rockylinux.org/guides/8_6_installation/)
+
 ## Installation steps:
 ### 1. Install Sonatype Nexus 3 repo and Nexus 3 itself
 
 following the steps from https://github.com/sonatype-nexus-community/nexus-repository-installer#yum-setup
 
 ### 2. Fine-tune the memory requirements
+If it is necessary (nexus service is not starting due to insufficient memory volume) - please increase the volume of Memory on your machine.
 
-by editing the file `/opt/sonatype/nexus3/bin/nexus.vmoptions` (for weaker systems set
+If it is not an option for you, you can try to edit the file `${installation-directory}/bin/nexus.vmoptions` and decrease the value of `Xms`, `Xmx` and `XX:MaxDirectMemorySize` flags (by default they have `2703m`):
 
 ```
 -Xms512m
@@ -112,14 +115,21 @@ run_as_user="nexus"
 
 **6) Edit "nexus.vmoptions"**
 
+I've notices that the service is not starting at all without any logging in case if it's not enough memory to start.
+
+If it is necessary - please increase the volume of Memory on your machine.
+
+If it is not an option for you, you can decrease values of `-Xms`, `-Xmx` and `XX:MaxDirectMemorySize` in `nexus.vmoptions` file.
+
 Open the file in editor
+
 ```
 sudo vi /opt/nexus/bin/nexus.vmoptions
 ```
 
-In case if you need to change the default nexus data directory You need to adjust the "-Dkaraf.data" value .
+And decrease the `-Xms`, `-Xmx` and `XX:MaxDirectMemorySize` values. By default they are set to `2703m`.
 
-Also I've notices that the service is not starting at all without any logging in case if it's not enough memory to start. So if default values of "-Xms" and "-Xmx" are too huge, you'd need to decrease them.
+In case if you need to change the default nexus data directory You need to adjust the `-Dkaraf.data` value .
 
 Below are the values I've used in my setup:
 ```
@@ -189,37 +199,73 @@ And then go to http://your_host:8081/ in your browser to log in as "admin" user 
 You can find instructions at:
 [https://github.com/sonatype/docker-nexus3](https://github.com/sonatype/docker-nexus3)
 
-Or create a docker-compose file similar to the following:
-[link](docker-compose.yml)
+### Build a docker image
 
-
-Then run via the following commands:
+You can copy the [Dockerfile](https://github.com/sonatype/docker-nexus3/blob/main/Dockerfile) from official Sonatype github repository or clone github repository to your local machine -  I will clone it to `~/Projects` directory:
 
 ```
-docker-compose pull
-docker-compose up -d
+cd ~/Projects
+&&
+git clone https://github.com/sonatype/docker-nexus3.git
+&&
+cd docker-nexus3
+```
+
+Then use the following command to build an image using Dockerfile with tag `sonatype/nexus3`:
+
+```
+docker build --rm=true --tag=sonatype/nexus3 .
+```
+
+Ensure that image has been created: 
+
+```
+docker image ls
+```
+
+### Mount a host directory as the volume
+
+Use the following commands to create a directory for persistent data and change its owner to UID 200 (cause this directory needs to be writable by the Nexus process, which runs as UID 200 - this can be checked in Dockerfile):
+
+```
+mkdir nexus-data && sudo chown -R 200 nexus-data
+```
+
+### Run the docker container
+
+You can use command similar to the following to run the container: 
+
+```
+docker run -d -p 8081:8081 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
+```
+
+Note that `volume` value should contain an absolute path to the directory we've created in a previous step: `-v ~/Projects/docker-nexus3/nexus-data:/nexus-data`.
+
+There is an environment variable that is being used to pass JVM arguments to the startup script `INSTALL4J_ADD_VM_PARAMS`, passed to the Install4J startup script; it defaults to `-Xms2703m -Xmx2703m -XX:MaxDirectMemorySize=2703m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs`.
+
+This can be adjusted at runtime, so if you want for example to decrease values of `-Xms`, `-Xmx` and `XX:MaxDirectMemorySize`, then your script to run the container would be:
+
+```
+docker run -d -p 8081:8081 --name nexus -e INSTALL4J_ADD_VM_PARAMS="-Xms512m -Xmx512m -XX:MaxDirectMemorySize=512m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs" -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
 ```
 
 It can take some time (2-3 minutes) for the service to launch in a new container.
-You can the status using the following command  to determine once Nexus is ready:
+
+You can tail the log to determine once Nexus is ready:
 
 ```
-docker-compose ps
+docker logs -f nexus
 ```
 
-If the status is not "running" then check the access settings for "nexus-data" volume directory by executing
+### Login to Nexus as `admin`.
 
-```
-ls -la
-```
+To ensure the system begins with a secure state, Nexus Repository Manager generates a unique random password during the system’s initial startup which it writes to the data directory (inside docker container in "/opt/sonatype-work/nexus3") in a file called admin.password.
 
-More information can be found here: [link](https://www.pluralsight.com/blog/it-ops/linux-file-permissions)
+You can access this file in a persistent data directory:
 
-Change permissions settings for nexus-data directory if necessary:
+`cat nexus-data/admin.password`
 
-```
-sudo chmod 777 nexus-data
-```
+And then go to http://your_host:8081/ in your browser to log in as "admin" user using the password from the file above.
 
 
 </details>
