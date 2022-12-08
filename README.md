@@ -241,6 +241,23 @@ You can use command similar to the following to run the container:
 docker run -d -p 8081:8081 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
 ```
 
+<details>
+<summary>If you want to take into account in advance port forwarding for Docker connectors</summary>
+
+##
+
+```
+docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
+```
+
+Where 8182 and 8183 - HTTP connectors created for Docker-hosted and Docker-group repos respectively
+
+How to assign port forwarding for existing docker container: [link](https://stackoverflow.com/a/26622041)
+
+##
+
+</details>
+ 
 Note that `volume` value should contain an absolute path to the directory we've created in a previous step: `-v ~/Projects/docker-nexus3/nexus-data:/nexus-data`.
 
 There is an environment variable that is being used to pass JVM arguments to the startup script `INSTALL4J_ADD_VM_PARAMS`, passed to the Install4J startup script; it defaults to `-Xms2703m -Xmx2703m -XX:MaxDirectMemorySize=2703m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs`.
@@ -282,6 +299,16 @@ Official Helm chart:
 
 Community Helm chart:
 [https://artifacthub.io/packages/helm/stevehipwell/nexus3](https://artifacthub.io/packages/helm/stevehipwell/nexus3)
+</details>
+
+
+<details>
+<summary><h4>Install via Ansible role</h4></summary>
+
+##
+
+[https://github.com/ansible-ThoTeam/nexus3-oss](https://github.com/ansible-ThoTeam/nexus3-oss)
+
 </details>
 
 
@@ -448,12 +475,25 @@ Save the user
 
 Nexus Repository Manager support Docker registries as the Docker repository format for hosted and proxy repositories. Official documentation from Sonatype on how to proxy Docker: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/proxy-repository-for-docker)
 
-Prerequisite: Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
+*Prerequisite:* Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
 
 <details>
 <summary><h4>Setup Proxy Docker repository</h4></summary>
 
 #
+
+
+You may want to setup proxy repos for the following registries:
+
+```
+https://registry-1.docker.io
+https://quay.io
+https://gcr.io
+https://ghcr.io
+```
+
+Example below describes how to setup a proxy for `https://registry-1.docker.io` in particular.
+
 Go to "server administration and configuration" section -> Choose "repositories" option on the left sidebar, then click "create repository" button at the very top of the screen -> Choose "docker (proxy)" type
 
 ![9](https://user-images.githubusercontent.com/74211642/203739210-e7927164-4cda-4673-b299-80e825d91e94.png)
@@ -676,16 +716,18 @@ The below command will fetch the latest chart or with the version:
 2. helm fetch <helm_repository_name>/<chart_name> --version <chart_version>
 ```
 
-For example, Nexus Repository has a Helm proxy repository called **helm-proxy** and your Nexus Repository is running on localhost:8081 where username is admin and password is admin.
+For example, Nexus Repository has a Helm proxy repository called **charts.bitnami.com_bitnami** and your Nexus Repository is running on localhost:8081.
 You would like to add this repository to Helm client. Also, you would like to fetch the latest MySQL chart. To accomplish this, you would do the following:
+
 ```
-1. helm repo add nexusrepo http://localhost:8081/repository/helm-proxy/ --username admin --password admin
-2. helm fetch nexusrepo/mysql
+helm repo add bitnami http://127.0.0.1:8081/repository/charts.bitnami.com_bitnami/
+helm fetch bitnami/mysql
 ```
 
 If you want to fetch a chart with a specific version, just run it, like so:
+
 ```
-helm fetch nexusrepo/mysql --version 1.4.0
+helm fetch bitnami/mysql --version 1.4.0
 ```
 
 ---
@@ -704,12 +746,30 @@ The following command should be used:
 
 ```
 curl -X 'POST' \
-  'http://localhost:8082/service/rest/v1/components?repository=helm-hosted' \
+  'http://localhost:8081/service/rest/v1/components?repository=helm-hosted' \
   -u 'helm-contributor:123123123' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'helm.asset=@test_chart-0.1.0.tgz;type=application/x-compressed-tar'
 ```
+
+Or we can use already downloaded chart from [bitnami/nginx](https://github.com/bitnami/charts/tree/ce8d6cccb28878a53e8ea7c313d6fcebd49de47f/bitnami/nginx), for example:
+
+```
+❯ helm fetch bitnami/nginx
+
+❯ ls -la
+.rw-r--r-- 40k md_dzubenco_add  7 Dec 19:44 nginx-13.2.14.tgz
+
+❯ curl -X 'POST' \
+  'http://localhost:8081/service/rest/v1/components?repository=helm-hosted' \
+  -u 'helm-contributor:123123123' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'helm.asset=@nginx-13.2.14.tgz;type=application/x-compressed-tar'
+```
+
+
 </details>
 
 # Setup Maven repositories
@@ -828,6 +888,46 @@ In case if you want to, you can explicitly define the path for settings.xml conf
 mvn -B -s $settings_xml_path -Dmaven.repo.local=$maven_repo_path install
 ```
 
+*Try it yourself:*
+
+```
+git clone https://github.com/Alliedium/springboot-api-rest-example.git
+cd ./springboot-api-rest-example/api
+mvn install
+```
+
+<details>
+<summary><h4>If you want to use Gradle as the client</h4></summary>
+
+##
+
+1) Create a `gradle.init` file in `~/.gradle` home directory:
+
+```
+❯ cat ~/.gradle/init.gradle
+allprojects {
+repositories {
+   mavenLocal()
+   maven {
+     url 'http://127.0.0.1:8081/repository/maven-public/'
+     allowInsecureProtocol = true
+   }
+}
+}
+```
+
+Then try the following example: 
+
+```
+git clone https://github.com/zoooo-hs/realworld-springboot.git
+cd realworld-springboot
+./gradlew build
+```
+
+##
+
+</details>
+
 </details>
 
 # Setup Conda repositories
@@ -911,8 +1011,35 @@ https://conda.anaconda.org/anaconda/
 So the command structure like in example below is valid (we can use these two channels without explicit mention of proxy url):
 
 ```
-conda install pip -c conda-forge
+micromamba install pip -c conda-forge
 ```
+
+Practical example:
+
+Install micromamba:
+
+```
+yay -S micromamba-bin
+micromamba shell
+logout/login
+```
+
+Create and activate environment: 
+
+```
+micromamba create -n xtensor
+micromamba activate xternsor
+```
+
+Clone a repo and install necessary dependencies:
+
+```
+git clone --depth 1 --branch 0.24.2 https://github.com/xtensor-stack/xtensor.git
+cd ./xtensor
+micromamba install -f ./environment.yml
+```
+
+
 </details>
 
 # Setup Npm repositories
@@ -1024,6 +1151,14 @@ npm install express --loglevel verbose
 npm install yarn --loglevel verbose
 ```
 
+Or try the following example: 
+
+```
+git clone https://github.com/mikro-orm/nestjs-realworld-example-app.git
+cd nestjs-realworld-example-app
+npm install
+```
+
 ---
 </details>
 
@@ -1099,11 +1234,11 @@ If you are going to use pip to download pip dependencies, create a pip.conf file
 1) Create a new file under your home directory **~/.config/pip/pip.conf** with the following content:
 ```
 [global]
-index-url = http://localhost:8082/repository/pypi-group/simple
+index-url = http://localhost:8081/repository/pypi-group/simple
 trusted-host = localhost
 ```
 
-Note that *http://localhost:8082/repository/pypi-group/* - is URL for my group repository which contains proxy repository for https://pypi.org/
+Note that *http://localhost:8081/repository/pypi-group/* - is URL for my group repository which contains proxy repository for https://pypi.org/
 
 But don't forget to add **/simple** postfix to the end of index-url
 
@@ -1127,8 +1262,29 @@ index-servers =
     pypi
 
 [pypi]
-repository = http://localhost:8082/repository/pypi-group/simple
+repository = http://localhost:8081/repository/pypi-group/simple
 ```
+
+
+Once these config files are set up, you can try the following examples: 
+
+```
+git clone https://github.com/alnuaimi94/realworld
+cd realworld
+pip install -r requirements.txt
+```
+
+For poetry ([Learn about Poetry](https://habr.com/ru/post/593529/)):
+
+```
+git clone https://github.com/nsidnev/fastapi-realworld-example-app
+cd fastapi-realworld-example-app
+poetry source add --default nexus http://127.0.0.1:8081/repository/pypi-group/simple
+poetry install
+```
+
+
+
 
 </details>
 
@@ -1190,6 +1346,12 @@ Where **localhost:8082** is address and port of your Nexus instance,
 **deb.debian.org_debian** and **security.debian.org_debian-security** are names of proxy repositories created for **http://deb.debian.org/debian** and **http://security.debian.org/debian-security** respectively
 
 </details>
+
+# Add Ansible Galaxy Format to Nexus Repository
+
+https://github.com/l3ender/nexus-repository-ansiblegalaxy
+
+More details TBA
 
 
 # How to configure S3 Blobstore in Nexus
