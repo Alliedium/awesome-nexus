@@ -196,34 +196,9 @@ And then go to http://your_host:8081/ in your browser to log in as "admin" user 
 
 ## 
 
-You can find instructions at:
-[https://github.com/sonatype/docker-nexus3](https://github.com/sonatype/docker-nexus3)
+You can find instructions at: [https://github.com/sonatype/docker-nexus3](https://github.com/sonatype/docker-nexus3)
 
-### Build a docker image
-
-You can copy the [Dockerfile](https://github.com/sonatype/docker-nexus3/blob/main/Dockerfile) from official Sonatype github repository or clone github repository to your local machine -  I will clone it to `~/Projects` directory:
-
-```
-cd ~/Projects
-&&
-git clone https://github.com/sonatype/docker-nexus3.git
-&&
-cd docker-nexus3
-```
-
-Then use the following command to build an image using Dockerfile with tag `sonatype/nexus3`:
-
-```
-docker build --rm=true --tag=sonatype/nexus3 .
-```
-
-Ensure that image has been created: 
-
-```
-docker image ls
-```
-
-![111](https://user-images.githubusercontent.com/74211642/205273975-2ce10973-82d7-4f2d-a937-89e9b4626fd9.png)
+Link to the Nexus3 image on dockerhub: [https://hub.docker.com/r/sonatype/nexus3/](https://hub.docker.com/r/sonatype/nexus3/)
 
 ### Mount a host directory as the volume
 
@@ -241,24 +216,41 @@ You can use command similar to the following to run the container:
 docker run -d -p 8081:8081 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
 ```
 
+**Volume:** Note that `volume` value should contain an absolute path to the directory we've created in a previous step, in my case it's `~/Projects/docker-nexus3/nexus-data`, 
+so that's why the volume is mapped the following way: `-v ~/Projects/docker-nexus3/nexus-data:/nexus-data`. 
+
+**Port:** As you may know (or not), Nexus service is running by default on `8081` port; this port can be used to access Nexus UI as well as access some API endpoints. 
+But this port is only available inside the docker container, if we are running Nexus in Docker.
+So, in order to have an ability to access the service outside the docker container (from our local machine), we need to forward the port via `-p 8081:8081` flag.
+
 <details>
-<summary>If you want to take into account in advance port forwarding for Docker connectors</summary>
+<summary><h5>[CLICK HERE] If you want to take into account in advance port forwarding for Docker HTTP connectors</h5></summary>
 
 ##
+
+Let's assume that we have to setup `Docker Proxy` and `Docker Hosted` repositories and then add them to a single `Docker Group` repository.
+
+Of course, as the result we should have an ability to `pull` images from `Docker Group` repository and `push` our custom images to the `Docker Hosted` repository.
+
+In order to do that, we need to have access to `Docker Group` and `Docker Hosted` repositories' HTTP connectors (spoiler: docker repositories can have a separate HTTP connectors set up, more info you can find at the section of `Setup Docker repositories` down below).
+
+So, let's assume that I'm going to setup HTTP connectors for `Docker Group` and `Docker Hosted` repos as `8183` and `8182` respectively.
+
+Hence, our start command should be changed to the following one: 
 
 ```
 docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
 ```
 
-Where 8182 and 8183 - HTTP connectors created for Docker-hosted and Docker-group repos respectively
+Where to existing flag `-p 8081:8081` the following flags are added: `-p 8182:8182 -p 8183:8183`
 
-How to assign port forwarding for existing docker container: [link](https://stackoverflow.com/a/26622041)
+More info about  to assign port forwarding for *existing* docker container: [link](https://stackoverflow.com/a/26622041)
 
 ##
 
 </details>
  
-Note that `volume` value should contain an absolute path to the directory we've created in a previous step: `-v ~/Projects/docker-nexus3/nexus-data:/nexus-data`.
+
 
 There is an environment variable that is being used to pass JVM arguments to the startup script `INSTALL4J_ADD_VM_PARAMS`, passed to the Install4J startup script; it defaults to `-Xms2703m -Xmx2703m -XX:MaxDirectMemorySize=2703m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs`.
 
