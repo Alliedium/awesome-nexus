@@ -465,17 +465,16 @@ Save the user
 
 # Setup Docker repositories
 
-Nexus Repository Manager support Docker registries as the Docker repository format for hosted and proxy repositories. Official documentation from Sonatype on how to proxy Docker: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/proxy-repository-for-docker)
-
-*Prerequisite:* Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
+**Prerequisite:** Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
 
 <details>
 <summary><h4>Setup Proxy Docker repository</h4></summary>
 
 #
 
+Official documentation from Sonatype on how to proxy Docker: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/proxy-repository-for-docker)
 
-You may want to setup proxy repos for the following registries:
+List of most common remote registries for docker images:
 
 ```
 https://registry-1.docker.io
@@ -492,17 +491,19 @@ Go to "server administration and configuration" section -> Choose "repositories"
 
 1) Provide the name of proxy
 
-2) Check the "HTTP" checkbox and provide a Port value you may use for this repository (at the screenshot it's 8181)
+2) Check the "HTTP" checkbox and provide a Port value you may use for this repository (at the screenshot it's 8181). 
+This port can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
+So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
 
-3) Check "allow anonymous docker pull"
+4) Check "allow anonymous docker pull"
 
-4) Provide the URL of the remote storage (for example, https://registry-1.docker.io). Note: each proxy repository can use only one remote storage
+5) Provide the URL of the remote storage (for example, https://registry-1.docker.io). Note: each proxy repository can use only one remote storage
 
-5) For the Docker index, select Use Docker Hub
+6) For the Docker index, select Use Docker Hub
 
-6) Check "Allow Nexus Repository Manager to download and cache foreign layers" checkbox (info: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/foreign-layers)). Remain the regexp by default
+7) Check "Allow Nexus Repository Manager to download and cache foreign layers" checkbox (info: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/foreign-layers)). Remain the regexp by default
 
-7) Please don't forget to apply to the repository the cleanup policy which has been created at the [Post-Install steps] -> [Create Cleanup policies for each types of repo] section of this guide
+8) Please don't forget to apply to the repository the cleanup policy which has been created at the [Post-Install steps] -> [Create Cleanup policies for each types of repo] section of this guide
 
 ![10](https://user-images.githubusercontent.com/74211642/203739321-f299e06f-32ed-416f-8305-819c1b335cd0.png)
 
@@ -523,6 +524,9 @@ The differences are that:
 2) Provide a name of repository, choose the blobstore (or remain it default) and apply a cleanup policy if needed (it should be set up as at the [Post-Install steps] -> [Create Cleanup policies for each types of repo] section of this guide)
 
 3) Don't forger to provide a HTTP connector at specified port as at the screenshot below. The port should be different from other HTTP connector ports specified for other created repos.
+This port can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
+So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
+
 
 ![11](https://user-images.githubusercontent.com/74211642/203739440-3ea5c732-332d-472e-b5f3-ba9cb7de2b2c.png)
 
@@ -539,6 +543,9 @@ Several Docker repositories can be grouped in order to simplify access if you're
 For more details please refer to the [guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/grouping-docker-repositories) .
 
 In our case, Nexus contains the Docker Group repository which includes all the Proxy Docker repos and Hosted Docker repo.
+
+You should need to provide an unused port value to `HTTP connector` field which going forward can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
+So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
 So, accessing the only one HTTP connector of Group repository, we will be able to **download** any image from all these repos (please **note** that Nexus Repository OSS **does not support pushing** into a group repository, so only pulling from group repository is available. Explicit push to the hosted repository is described in the **"Client configuration & How to use"** section below):
 
 ![12](https://user-images.githubusercontent.com/74211642/203739670-68f46b50-bc81-4ef5-a639-82b9d60c7335.png)
@@ -599,17 +606,15 @@ At the bottom you should see records similar to the following:
 Now if you run in your console:
 
 ```
-docker pull
-# or
-docker push
+docker pull sonatype/centos-rpm
 ```
 
-your docker will point to the Nexus instance.
+your docker will point to the Nexus instance, which will go to the [dockerhub image of centos-rpm](https://hub.docker.com/r/sonatype/centos-rpm) and cache `centos-rpm` image.
 
 **Example of pushing** to Docker hosted repo:
 General approach is described [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/pushing-images)
 
-I've chose one of the available images for pushing:
+I've chosen one of the available images for pushing:
 
 ![15](https://user-images.githubusercontent.com/74211642/203763859-950fb250-9c82-4246-9a59-ad41e0bbd61f.png)
 
@@ -617,7 +622,7 @@ Then made a tag:
 
 ![16](https://user-images.githubusercontent.com/74211642/203763954-4998617e-feb8-4298-93a9-29525b2c1ef9.png)
 
-Then authenticated as "docker-contributer" user (password: 123123123) and pushed the image:
+Then authenticated as "docker-contributor" user (password: 123123123) and pushed the image:
 
 ![17](https://user-images.githubusercontent.com/74211642/203763993-964db330-edf6-45ae-9e95-dddc35cd25fd.png)
 
@@ -761,6 +766,30 @@ Or we can use already downloaded chart from [bitnami/nginx](https://github.com/b
   -F 'helm.asset=@nginx-13.2.14.tgz;type=application/x-compressed-tar'
 ```
 
+<details>
+<summary><h5>[CLICK HERE] If you want to have an ability to push helm cherts via "helm push" command</h5></summary>
+
+##
+
+Follow the installation instructions from [helm-nexus-push](https://github.com/sonatype-nexus-community/helm-nexus-push) github repo to install `helm-nexus-push` plugin.
+
+1) Install the plugin
+
+`helm plugin install --version master https://github.com/sonatype-nexus-community/helm-nexus-push.git `
+
+2) Add a helm repo which refers to your `helm hosted` repo from Nexus: 
+
+`helm repo add helm-hosted http://127.0.0.1:8081/repository/helm-hosted/`
+
+3) Push the chart using credentials from respective user (in my case it's `helm-contributor` user with password of `123123123`):
+
+`helm nexus-push helm-hosted -u helm-contributor -p 123123123 postgresql-ha-10.0.7.tgz`
+
+Name  of `postgresql-ha-10.0.7.tgz` archive is taken just as example, you should replace it with your own archive you want to push.
+
+---
+
+</details>
 
 </details>
 
