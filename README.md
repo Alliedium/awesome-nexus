@@ -773,11 +773,11 @@ Or we can use already downloaded chart from [bitnami/nginx](https://github.com/b
 
 ##
 
-Follow the installation instructions from [helm-nexus-push](https://github.com/sonatype-nexus-community/helm-nexus-push) github repo to install `helm-nexus-push` plugin.
+Follow the installation instructions from [helm-nexus-push](https://github.com/Alliedium/helm-nexus-push) github repo to install `helm-nexus-push` plugin.
 
 1) Install the plugin
 
-`helm plugin install --version master https://github.com/sonatype-nexus-community/helm-nexus-push.git `
+`helm plugin install --version master https://github.com/Alliedium/helm-nexus-push.git `
 
 2) Add a helm repo which refers to your `helm hosted` repo from Nexus: 
 
@@ -785,7 +785,16 @@ Follow the installation instructions from [helm-nexus-push](https://github.com/s
 
 3) Push the chart using credentials from respective user (in my case it's `helm-contributor` user with password of `123123123`):
 
-`helm nexus-push helm-hosted -u helm-contributor -p 123123123 postgresql-ha-10.0.7.tgz`
+Login and then push:
+
+```
+❯helm nexus-push helm-hosted login -u helm-contributor -p 123123123
+❯helm nexus-push helm-hosted postgresql-ha-10.0.7.tgz
+```
+
+Or login and push in the same command:
+
+`❯helm nexus-push helm-hosted -u helm-contributor -p 123123123 postgresql-ha-10.0.7.tgz`
 
 Name  of `postgresql-ha-10.0.7.tgz` archive is taken just as example, you should replace it with your own archive you want to push.
 
