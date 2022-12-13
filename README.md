@@ -210,14 +210,16 @@ mkdir nexus-data && sudo chown -R 200 nexus-data
 
 ### Run the docker container
 
-You can use command similar to the following to run the container: 
+You can use command similar to the following to run the container:
 
 ```
-docker run -d -p 8081:8081 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
+docker run -d -p 8081:8081 --name nexus --mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
 ```
 
-**Volume:** Note that `volume` value should contain an absolute path to the directory we've created in a previous step, in my case it's `~/Projects/docker-nexus3/nexus-data`, 
-so that's why the volume is mapped the following way: `-v ~/Projects/docker-nexus3/nexus-data:/nexus-data`. 
+**Volume:** Note that `volume` value should contain an absolute path to the directory we've created in a previous step, in my case it's `$HOME/Projects/docker-nexus3/nexus-data`, 
+so that's why the volume is mapped the following way: `--mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data`. We're using `--mount` in order to mount a volume, more info about this flag can be found [here](https://docs.docker.com/engine/reference/commandline/run/#add-bind-mounts-or-volumes-using-the---mount-flag)
+
+**Restart:** this flag with `unless-stopped` value allows container to always restart unless it is explicitly stopped or Docker is restarted. More info can be found [here](https://docs.docker.com/config/containers/start-containers-automatically/)
 
 **Port:** As you may know (or not), Nexus service is running by default on `8081` port; this port can be used to access Nexus UI as well as access some API endpoints. 
 But this port is only available inside the docker container, if we are running Nexus in Docker.
@@ -239,7 +241,7 @@ So, let's assume that I'm going to setup HTTP connectors for `Docker Group` and 
 Hence, our start command should be changed to the following one: 
 
 ```
-docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
+docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus --mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
 ```
 
 Where to existing flag `-p 8081:8081` the following flags are added: `-p 8182:8182 -p 8183:8183`
@@ -257,7 +259,7 @@ There is an environment variable that is being used to pass JVM arguments to the
 This can be adjusted at runtime, so if you want for example to decrease values of `-Xms`, `-Xmx` and `XX:MaxDirectMemorySize`, then your script to run the container would be:
 
 ```
-docker run -d -p 8081:8081 --name nexus -e INSTALL4J_ADD_VM_PARAMS="-Xms512m -Xmx512m -XX:MaxDirectMemorySize=512m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs" -v ~/Projects/docker-nexus3/nexus-data:/nexus-data sonatype/nexus3
+docker run -d -p 8081:8081 --name nexus -e INSTALL4J_ADD_VM_PARAMS="-Xms512m -Xmx512m -XX:MaxDirectMemorySize=512m -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs" --mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
 ```
 
 It can take some time (2-3 minutes) for the service to launch in a new container.
