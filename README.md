@@ -10,7 +10,7 @@ Official documentation:
 <summary><h4>Install Nexus using Yum</h4></summary>
 
 ## Prerequisite steps:
-* Rocky Linux 8
+* Rocky Linux 8 / CentOS
 
 Guide [How to install Rocky Linux 8.6](https://docs.rockylinux.org/guides/8_6_installation/)
 
@@ -34,7 +34,7 @@ If it is not an option for you, you can try to edit the file `${installation-dir
 
 via `sudo systemctl enable nexus-repository-manager --now`
 
-### 4. Login to Nexus as `admin`.
+### 4. Login to Nexus as `admin`
 
 To ensure the system begins with a secure state, Nexus Repository Manager generates a unique random password during the system’s initial startup which it writes to the data directory (in our case it's "sonatype-work/nexus3") in a file called admin.password.
 
@@ -49,6 +49,10 @@ And then go to http://your_host:8081/ in your browser to log in as "admin" user 
 <summary><h4>Install Nexus manually</h4></summary>
 
 ## Prerequisite steps:
+
+* Rocky Linux 8 / CentOS
+
+Guide [How to install Rocky Linux 8.6](https://docs.rockylinux.org/guides/8_6_installation/)
 
 * Install wget utility in case if you don't have it:
 ```
@@ -115,7 +119,7 @@ run_as_user="nexus"
 
 **6) Edit "nexus.vmoptions"**
 
-I've notices that the service is not starting at all without any logging in case if it's not enough memory to start.
+The service will not start at all without any logging in case if it's not enough memory to start.
 
 If it is necessary - please increase the volume of Memory on your machine.
 
@@ -131,7 +135,7 @@ And decrease the `-Xms`, `-Xmx` and `XX:MaxDirectMemorySize` values. By default 
 
 In case if you need to change the default nexus data directory You need to adjust the `-Dkaraf.data` value .
 
-Below are the values I've used in my setup:
+Below is the example of such values:
 ```
 -Xms512m
 -Xmx512m
@@ -160,7 +164,7 @@ You can configure the repository manager to run as a service with "init.d" or "s
 
 Both these methods you can find described at the following [page](https://help.sonatype.com/repomanager3/installation-and-upgrades/run-as-a-service).
 
-In this guide we will use "update-rc.d" - a tool that targets the initscripts in "init.d" to run the nexus service.
+In this guide "update-rc.d" is used - a tool that targets the init scripts in "init.d" to run the nexus service.
 
 Symlink "opt/nexus/bin/nexus" to "/etc/init.d/nexus":
 ```
@@ -202,10 +206,10 @@ Link to the Nexus3 image on dockerhub: [https://hub.docker.com/r/sonatype/nexus3
 
 ### Mount a host directory as the volume
 
-Use the following commands to create a directory for persistent data and change its owner to UID 200 (cause this directory needs to be writable by the Nexus process, which runs as UID 200 - this can be checked in Dockerfile):
+Use the following commands to create a directory for persistent data and change its owner to UID 200 (cause this directory needs to be writable by the Nexus process, which runs as UID 200 - this can be checked in [Dockerfile](https://github.com/sonatype/docker-nexus3/blob/main/Dockerfile)):
 
 ```
-mkdir nexus-data && sudo chown -R 200 nexus-data
+mkdir $HOME/nexus-data && sudo chown -R 200 $HOME/nexus-data
 ```
 
 ### Run the docker container
@@ -213,43 +217,44 @@ mkdir nexus-data && sudo chown -R 200 nexus-data
 You can use command similar to the following to run the container:
 
 ```
-docker run -d -p 8081:8081 --name nexus --mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
+docker run -d -p 8081:8081 --name nexus --mount type=bind,src=$HOME/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
 ```
 
-**Volume:** Note that `volume` value should contain an absolute path to the directory we've created in a previous step, in my case it's `$HOME/Projects/docker-nexus3/nexus-data`, 
-so that's why the volume is mapped the following way: `--mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data`. We're using `--mount` in order to mount a volume, more info about this flag can be found [here](https://docs.docker.com/engine/reference/commandline/run/#add-bind-mounts-or-volumes-using-the---mount-flag)
+**Volume:** Note that `volume` value should contain an absolute path to the directory we've created in the previous step, here it is `$HOME/nexus-data`, 
+so that's why the volume is mapped the following way: `--mount type=bind,src=$HOME/nexus-data,dst=/nexus-data`. We're using `--mount` in order to [mount a volume](https://docs.docker.com/engine/reference/commandline/run/#add-bind-mounts-or-volumes-using-the---mount-flag).
 
-**Restart:** this flag with `unless-stopped` value allows container to always restart unless it is explicitly stopped or Docker is restarted. More info can be found [here](https://docs.docker.com/config/containers/start-containers-automatically/)
+**Restart:** [this flag](https://docs.docker.com/config/containers/start-containers-automatically/) with `unless-stopped` value allows container to always restart unless it is explicitly stopped or Docker is restarted.
 
 **Port:** As you may know (or not), Nexus service is running by default on `8081` port; this port can be used to access Nexus UI as well as access some API endpoints. 
-But this port is only available inside the docker container, if we are running Nexus in Docker.
-So, in order to have an ability to access the service outside the docker container (from our local machine), we need to forward the port via `-p 8081:8081` flag.
+But this port is only available inside the docker container, if Nexus is launched in Docker.
+So, in order to have an ability to access the service outside the docker container (from our local machine), it is necessary to forward the port via `-p 8081:8081` flag.
 
 <details>
 <summary><h5>[CLICK HERE] If you want to take into account in advance port forwarding for Docker HTTP connectors</h5></summary>
 
-##
+---
 
-Let's assume that we have to setup `Docker Proxy` and `Docker Hosted` repositories and then add them to a single `Docker Group` repository.
+### Port forwarding for Docker HTTP connectors
 
-Of course, as the result we should have an ability to `pull` images from `Docker Group` repository and `push` our custom images to the `Docker Hosted` repository.
+Let's assume that it's needed to setup `Docker Proxy` and `Docker Hosted` repositories and then add them to a single `Docker Group` repository.
 
-In order to do that, we need to have access to `Docker Group` and `Docker Hosted` repositories' HTTP connectors (spoiler: docker repositories can have a separate HTTP connectors set up, more info you can find at the section of `Setup Docker repositories` down below).
+Of course, as the result there should be the ability to `pull` images from `Docker Group` repository and `push` custom images to the `Docker Hosted` repository.
 
-So, let's assume that I'm going to setup HTTP connectors for `Docker Group` and `Docker Hosted` repos as `8183` and `8182` respectively.
+In order to do that, HTTP connectors of `Docker Group` and `Docker Hosted` repositories should be available from client's machine (spoiler: docker repositories can have a [separate HTTP connectors](#setup-docker-repositories)).
+
+So, let's assume that HTTP connectors for `Docker Group` and `Docker Hosted` repositories are `8183` and `8182` respectively.
 
 Hence, our start command should be changed to the following one: 
 
 ```
-docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus --mount type=bind,src=$HOME/Projects/docker-nexus3/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
+docker run -d -p 8081:8081 -p 8182:8182 -p 8183:8183 --name nexus --mount type=bind,src=$HOME/nexus-data,dst=/nexus-data --restart unless-stopped sonatype/nexus3
 ```
 
-Where to existing flag `-p 8081:8081` the following flags are added: `-p 8182:8182 -p 8183:8183`
+Where to `-p 8081:8081` the following flags are added: `-p 8182:8182 -p 8183:8183`
 
-More info about  to assign port forwarding for *existing* docker container: [link](https://stackoverflow.com/a/26622041)
+[How to assign port forwarding for existing docker container](https://stackoverflow.com/a/26622041)
 
-##
-
+---
 </details>
  
 
@@ -270,15 +275,15 @@ You can tail the log to determine once Nexus is ready:
 docker logs -f nexus
 ```
 
-### Login to Nexus as `admin`.
+### Login to Nexus as `admin`
 
 To ensure the system begins with a secure state, Nexus Repository Manager generates a unique random password during the system’s initial startup which it writes to the data directory (inside docker container in "/opt/sonatype-work/nexus3") in a file called admin.password.
 
 You can access this file in a persistent data directory:
 
-`cat nexus-data/admin.password`
+`cat $HOME/nexus-data/admin.password`
 
-And then go to http://your_host:8081/ in your browser to log in as "admin" user using the password from the file above.
+And then go to http://your_host:8081/ in your browser to log in as `admin` user using the password from the file above.
 
 
 </details>
@@ -353,7 +358,7 @@ The next steps (as an example) will be described for a maven type of repository:
 **1)** Specify the name of cleanup policy --> **2)** Choose the type of repository (at the screenshot above it's maven2) --> **3)** Choose Cleanup criteria (at the screenshot above it's about to delete components that haven't been downloaded in 3 days)
 
 These steps should be repeated for all the type of repositories for which you need to have a cleanup job configured.
-In my case it's the following list: apt, conda, docker, helm, maven, npm, pypi
+For example for the following formats: apt, conda, docker, helm, maven, npm, pypi
 
 ![8](https://user-images.githubusercontent.com/74211642/203737469-fbd79fd8-1a95-4b09-ab6f-ec51dfa73183.png)
 
@@ -448,15 +453,15 @@ Go to Admin Panel -> Expand "Security" section -> Choose "Users" -> Click "Creat
 
 Fill the form:
 
-ID: any description e.g. "docker-contributor"
+ID: any description e.g. `docker-contributor`
 
 First Name, Last Name, Email: any dummy values
 
 Password: it will be used for authentication
 
-Status: choose "active"
+Status: choose `active`
 
-Roles: move previously created role (in my case it's "docker-contributor") from "Available" section to "Granted"
+Roles: move previously created role `docker-contributor` from `Available` section to `Granted`
 
 Save the user
 
@@ -495,7 +500,7 @@ Go to "server administration and configuration" section -> Choose "repositories"
 
 2) Check the "HTTP" checkbox and provide a Port value you may use for this repository (at the screenshot it's 8181). 
 This port can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
-So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
+So, if your Nexus instance is launched in Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
 
 4) Check "allow anonymous docker pull"
 
@@ -527,13 +532,11 @@ The differences are that:
 
 3) Don't forger to provide a HTTP connector at specified port as at the screenshot below. The port should be different from other HTTP connector ports specified for other created repos.
 This port can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
-So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
+So, if your Nexus instance is launched in Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
 
 
 ![11](https://user-images.githubusercontent.com/74211642/203739440-3ea5c732-332d-472e-b5f3-ba9cb7de2b2c.png)
 
-Then you will be able to push your own images to such repository.
-Example of pushing to Docker hosted repo can be found at the **"Client configuration & How to use"** section below
 
 </details>
 
@@ -547,8 +550,8 @@ For more details please refer to the [guide](https://help.sonatype.com/repomanag
 In our case, Nexus contains the Docker Group repository which includes all the Proxy Docker repos and Hosted Docker repo.
 
 You should need to provide an unused port value to `HTTP connector` field which going forward can be used to access this repository directly as an API endpoint. More info about connectors can be found [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/ssl-and-repository-connector-configuration).
-So, if your Nexus instance is running inside of Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
-So, accessing the only one HTTP connector of Group repository, we will be able to **download** any image from all these repos (please **note** that Nexus Repository OSS **does not support pushing** into a group repository, so only pulling from group repository is available. Explicit push to the hosted repository is described in the **"Client configuration & How to use"** section below):
+So, if your Nexus instance is launched in Docker container, or it is running on a separate VM behind a firewall, you would need to ensure that this port is available outside (from your local machine), and open it or forward if needed.
+So, accessing the only one HTTP connector of Group repository, client is able to **download** any image from all these repos (please **note** that Nexus Repository OSS **does not support pushing** into a group repository, so only pulling from group repository is available. Push can be performed to the hosted repository):
 
 ![12](https://user-images.githubusercontent.com/74211642/203739670-68f46b50-bc81-4ef5-a639-82b9d60c7335.png)
 
@@ -559,17 +562,7 @@ So, accessing the only one HTTP connector of Group repository, we will be able t
 
 #
 
-1) Go to /etc/docker/daemon.json and change it's content as follows:
-```
-{ "features" : { "buildkit": true},
-"insecure-registries": ["nexus_address:http_connector_group_repo", "http://nexus_address:http_connector_group_repo", "nexus_address:http_connector_hosted_repo", "http://nexus_address:http_connector_hosted_repo"],
-"registry-mirrors": ["http://nexus_address:http_connector_group_repo", "http://nexus_address:http_connector_hosted_repo"],
-"debug": true
- }
-
-```
-
-for example, in my case it would be:
+1) Go to /etc/docker/daemon.json and change it with similar content:
 
 ```
 { "features" : { "buildkit": true}, 
@@ -579,13 +572,34 @@ for example, in my case it would be:
  }
 ```
 
-2) Create a file /etc/default/docker and put the following line:
+Where:
+
+`localhost` can be replaced with the IP address of the VM where your Nexus instance is running (in this example it is launched in a Docker container at the host machine)
+
+`8183` is an HTTP connector set up for `Docker-group` repository in Nexus
+
+`8182` is an HTTP connector set up for `Docker-hosted` repository in Nexus
+
+<details>
+<summary><h5>In case if Docker does not refer to `/etc/docker/daemon.json`</h5></summary>
+
+---
+
+### Run Docker commands always with --config-file flag
+
+*NOTE* that this step is not necessary if the latest version of Docker is installed.
+
+Create a file /etc/default/docker and put the following line:
 
 ```
 DOCKER_OPTS="--config-file=/etc/docker/daemon.json"
 ```
 
 ![13](https://user-images.githubusercontent.com/74211642/203739818-5e761286-6e4c-4571-8cda-f9f97ff3b87a.png)
+
+---
+</details>
+
 
 3) Go to **~/.docker/config.json**. In case if it contains a record with docker.io, delete it (otherwise docker will work with docker hub instead of proxy)
 
@@ -613,18 +627,18 @@ docker pull sonatype/centos-rpm
 
 your docker will point to the Nexus instance, which will go to the [dockerhub image of centos-rpm](https://hub.docker.com/r/sonatype/centos-rpm) and cache `centos-rpm` image.
 
-**Example of pushing** to Docker hosted repo:
-General approach is described [here](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/pushing-images)
+### Example of pushing to Docker hosted repo
+[Official guide from Sonatype](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/docker-registry/pushing-images)
 
-I've chosen one of the available images for pushing:
+Choose one of the available images for pushing:
 
 ![15](https://user-images.githubusercontent.com/74211642/203763859-950fb250-9c82-4246-9a59-ad41e0bbd61f.png)
 
-Then made a tag:
+Then make a tag:
 
 ![16](https://user-images.githubusercontent.com/74211642/203763954-4998617e-feb8-4298-93a9-29525b2c1ef9.png)
 
-Then authenticated as "docker-contributor" user (password: 123123123) and pushed the image:
+Then authenticate as "docker-contributor" user (password: 123123123) and push the image:
 
 ![17](https://user-images.githubusercontent.com/74211642/203763993-964db330-edf6-45ae-9e95-dddc35cd25fd.png)
 
@@ -734,13 +748,13 @@ helm fetch bitnami/mysql --version 1.4.0
 
 ![26](https://user-images.githubusercontent.com/74211642/203764593-35fba3b3-2b69-4dfa-a3ed-5d1f6a4c3c90.png)
 
-1) I've created test chart
+1) Test chart is created
 
-2) I've checked that chart directory has been created with default content
+2)Check that chart directory has been created with default content
 
-3) Made an archive out of the chart
+3) Archive the chart
 
-Then, using "helm-contributor" user with "123123123" password we can push the chart to the helm-hosted repo.
+Then, using `helm-contributor` user with `123123123` password push the chart to the helm-hosted repo.
 The following command should be used:
 
 ```
@@ -752,7 +766,7 @@ curl -X 'POST' \
   -F 'helm.asset=@test_chart-0.1.0.tgz;type=application/x-compressed-tar'
 ```
 
-Or we can use already downloaded chart from [bitnami/nginx](https://github.com/bitnami/charts/tree/ce8d6cccb28878a53e8ea7c313d6fcebd49de47f/bitnami/nginx), for example:
+Example of pushing the chart from [bitnami/nginx](https://github.com/bitnami/charts/tree/ce8d6cccb28878a53e8ea7c313d6fcebd49de47f/bitnami/nginx):
 
 ```
 ❯ helm fetch bitnami/nginx
@@ -769,9 +783,11 @@ Or we can use already downloaded chart from [bitnami/nginx](https://github.com/b
 ```
 
 <details>
-<summary><h5>[CLICK HERE] If you want to have an ability to push helm cherts via "helm push" command</h5></summary>
+<summary><h5>[CLICK HERE] If you want to have an ability to push helm charts via "helm push" command</h5></summary>
 
-##
+---
+
+### helm-nexus-push plugin
 
 Follow the installation instructions from [helm-nexus-push](https://github.com/Alliedium/helm-nexus-push) github repo to install `helm-nexus-push` plugin.
 
@@ -783,7 +799,7 @@ Follow the installation instructions from [helm-nexus-push](https://github.com/A
 
 `helm repo add helm-hosted http://127.0.0.1:8081/repository/helm-hosted/`
 
-3) Push the chart using credentials from respective user (in my case it's `helm-contributor` user with password of `123123123`):
+3) Push the chart using credentials from respective user (e.g. `helm-contributor` user with password of `123123123`):
 
 Login and then push:
 
@@ -1033,7 +1049,7 @@ channel_alias: http://localhost:8082/repository/
 
 This alias means, that every conda command, which is including channel with *channel_name*, will be actually referring to http://localhost:8082/repository/channel_name
 
-**Note** that currently we have proxy repositories for *conda-forge* and *anaconda* channels only:
+Let's assume that there are proxy repositories for *conda-forge* and *anaconda* channels only:
 
 ```
 https://conda.anaconda.org/conda-forge/
@@ -1074,12 +1090,12 @@ micromamba install -f ./environment.yml
 
 </details>
 
-# Setup Npm repositories
+# Setup npm repositories
 
 Official documentation from Sonatype on how to proxy npm dependencies: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry)
 
 <details>
-<summary><h4>Setup Proxy Npm repository</h4></summary>
+<summary><h4>Setup Proxy npm repository</h4></summary>
 
 #
 
@@ -1114,13 +1130,13 @@ As a result, repository like this should appear:
 </details>
 
 <details>
-<summary><h4>Setup Hosted Npm repository</h4></summary>
+<summary><h4>Setup Hosted npm repository</h4></summary>
 
 #
 
-If you want to have an ability to push your own Npm dependencies to the Nexus, you would need to have Hosted Repository set up.
+If you want to have an ability to push your own npm dependencies to the Nexus, you would need to have Hosted Repository set up.
 
-The creation of Hosted Npm repository in Nexus is pretty similar to the **Proxy Npm repository** creation.
+The creation of Hosted npm repository in Nexus is pretty similar to the **Proxy npm repository** creation.
 
 The differences are that:
 
@@ -1131,14 +1147,14 @@ The differences are that:
 </details>
 
 <details>
-<summary><h4>Setup Group Npm repository</h4></summary>
+<summary><h4>Setup Group npm repository</h4></summary>
 
 #
 
 Several npm repositories can be grouped in order to simplify access if you're going to use different remote storages at the same time.
-For more details please refer to the [guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management) on repository types (group repository section).
+[Guide on repository types (group repository section)](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management) .
 
-For example, in our case we can join **Proxy** and **Hosted** repositories in the same group:
+For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 
 ![40](https://user-images.githubusercontent.com/74211642/203767326-035777c5-15a8-46fc-89fc-b17ad9ebe936.png)
 
@@ -1248,7 +1264,8 @@ The differences are that:
 Several PyPi repositories can be grouped in order to simplify access if you're going to use different remote storages at the same time.
 For more details please refer to the [guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management) on repository types (group repository section).
 
-In our own configuration, I've created a proxy to https://pypi.org/, then hosted repository for our own artifacts and then grouped them both under group repository. Now, we can access group repository in order to manage artifacts in both proxy and hosted repos.
+So, at the screenshot below there's a proxy to `https://pypi.org/` and `hosted` repository for our own artifacts which are added to a single `group` repository. 
+In order to manage artifacts in both proxy and hosted repos only group repository can be accessed.
 
 ![45](https://user-images.githubusercontent.com/74211642/203767644-7cd6423d-155c-4f04-8ff5-508b1025a9b8.png)
 
@@ -1270,7 +1287,7 @@ index-url = http://localhost:8081/repository/pypi-group/simple
 trusted-host = localhost
 ```
 
-Note that *http://localhost:8081/repository/pypi-group/* - is URL for my group repository which contains proxy repository for https://pypi.org/
+Note that *http://localhost:8081/repository/pypi-group/* - is URL for group repository which contains proxy repository for https://pypi.org/
 
 But don't forget to add **/simple** postfix to the end of index-url
 
