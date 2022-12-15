@@ -917,9 +917,10 @@ For example, you can group both **Maven Proxy** and **Maven Hosted** repositorie
 </settings>
 ```
 
-Now, every maven command will use the mirror identified in user's settings.xml and only after that settings from pom will be picked up. There's no need to include the path of settings.xml in the maven command after -s flag. Maven will automatically check for settings in .m2 directory.
+Now, every maven command will use the mirror identified in user's settings.xml and only after that settings from pom will be picked up. 
+There's no need to include the path of settings.xml in the maven command after -s flag. Maven will automatically check for settings in .m2 directory.
 
-More documentation about mirror settings can be found in the mini guide on the [Maven web site](http://maven.apache.org/guides/mini/guide-mirror-settings.html).
+[Advanced mirror settings at Maven web site](http://maven.apache.org/guides/mini/guide-mirror-settings.html).
 
 Now, in order to check that the setting works well, you can go to directory that contain pom.xml and execute mvn package:
 ```
@@ -945,9 +946,11 @@ mvn install
 ```
 
 <details>
-<summary><h4>If you want to use Gradle as the client</h4></summary>
+<summary><h4>[CLICK  HERE] If you want to use Gradle as the client</h4></summary>
 
-##
+---
+
+### Gradle configuration to use Maven repos from Nexus
 
 1) Create a `gradle.init` file in `~/.gradle` home directory:
 
@@ -972,9 +975,17 @@ cd realworld-springboot
 ./gradlew build
 ```
 
-##
+---
 
 </details>
+
+### Maven Deploy to Nexus
+
+[How to deploy via nexus-staging-maven-plugin](https://www.baeldung.com/maven-deploy-nexus)
+
+[nexus-staging-maven-plugin on Github](https://github.com/sonatype/nexus-maven-plugins/tree/main/staging/maven-plugin)
+
+[Documentation from Sonatype](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/maven-repositories#MavenRepositories-ConfiguringApacheMaven)
 
 </details>
 
