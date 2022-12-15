@@ -1337,9 +1337,11 @@ In order to manage artifacts in both proxy and hosted repos only group repositor
 
 ## pip.conf ##
 
-If you are going to use pip to download pip dependencies, create a pip.conf file:
+If you are going to use pip to download pip dependencies, create a pip.conf file.
 
-1) Create a new file under your home directory **~/.config/pip/pip.conf** with the following content:
+[pip configuration file info](https://pip.pypa.io/en/stable/topics/configuration/)
+
+Create a new file under your home directory `$HOME/.config/pip/pip.conf` with the following content:
 ```
 [global]
 index-url = http://localhost:8081/repository/pypi-group/simple
@@ -1350,19 +1352,17 @@ Note that *http://localhost:8081/repository/pypi-group/* - is URL for group repo
 
 But don't forget to add **/simple** postfix to the end of index-url
 
-Then you can use a command like the following one to ensure that setting is working fine - log should contain URL of the proxy:
-```
-pip install twine 
-```
 ---
 
 ## .pypirc ##
 
-Note that pip doesn't use **.pypirc** at all. **.pypirc** is only used by tools that publish packages to an index (for example, twine) and pip doesn't publish packages.
+Note that pip doesn't use `.pypirc` at all. 
 
-If you want to upload a package to a hosted repository using twine, you would need to configure a .pypirc file:
+`.pypirc` is only used by tools that publish packages to an index (for example, twine) and pip doesn't publish packages.
 
-1) Create a .pypirc file under your user's home directory **~/.pypirc** with the following content:
+If you want to upload a package to a hosted repository using twine, you would need to configure a `.pypirc` file:
+
+Create a `.pypirc` file under your user's home directory `$HOME/.pypirc` with the following content:
 
 ```
 [distutils]
@@ -1370,11 +1370,14 @@ index-servers =
     pypi
 
 [pypi]
-repository = http://localhost:8081/repository/pypi-group/simple
+repository = http://localhost:8081/repository/pypi-hosted/simple
 ```
 
+## Usage
 
-Once these config files are set up, you can try the following examples: 
+### Pulling 
+
+Once these config files are set up, you can try the following example for pulling: 
 
 ```
 git clone https://github.com/alnuaimi94/realworld
@@ -1391,8 +1394,17 @@ poetry source add --default nexus http://127.0.0.1:8081/repository/pypi-group/si
 poetry install
 ```
 
+### Pushing
 
+[Packaging python projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 
+[Guide on how to Publish python package using Twine](https://www.geeksforgeeks.org/how-to-publish-python-package-at-pypi-using-twine-module/)
+
+In the example below, twine is invoked to tell your repository what server to use when uploading a package. The `-r` flag is used to find the NXRM server in your `.pypirc`
+
+```
+twine upload -r pypi dist/*
+```
 
 </details>
 
@@ -1423,16 +1435,7 @@ Go to "server administration and configuration" section -> Choose "repositories"
 
 #
 
-If you want to have an ability to push your own Apt artifacts to the Nexus, you would need to have Hosted Repository set up.
-
-The creation of Hosted Apt repository in Nexus is pretty similar to the **Proxy Apt repository** creation.
-
-The differences are that:
-
-1) When choosing the repository type to be created, choose "apt (hosted)"
-
-2) Provide a name of repository, choose the blobstore (or remain it default) and apply a cleanup policy if needed (it should be set up as above in the **cleanup policies** section of this guide)
-
+[Sonatype documentation on creating APT hosted repository](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/apt-repositories#AptRepositories-HostingAptRepositories)
 
 </details>
 
@@ -1453,14 +1456,17 @@ Where **localhost:8081** is address and port of your Nexus instance,
 
 **deb.debian.org_debian** and **security.debian.org_debian-security** are names of proxy repositories created for **http://deb.debian.org/debian** and **http://security.debian.org/debian-security** respectively
 
+Then, once this is set up, command similar to the following can be used to install `curl`, for example: 
+
+```
+apt-get update && apt-get -y install curl
+```
+
 </details>
 
 # Add Ansible Galaxy Format to Nexus Repository
 
 https://github.com/l3ender/nexus-repository-ansiblegalaxy
-
-More details TBA
-
 
 # How to configure S3 Blobstore in Nexus
 
