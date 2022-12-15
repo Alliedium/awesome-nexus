@@ -834,10 +834,10 @@ Note: Nexus has a set of Maven repositories (proxy, hosted and group types) inst
 ![27](https://user-images.githubusercontent.com/74211642/203764657-ce64bff9-8eb4-4c89-a6ae-70c6fcca70d2.png)
 
 ```
-http://localhost:8082/repository/maven-central/ - proxy for https://repo1.maven.org/maven2/
-http://localhost:8082/repository/maven-snapshots/ - hosted repository for custom dependencies storage
-http://localhost:8082/repository/maven-releases/ - hosted repository for custom dependencies storage
-http://localhost:8082/repository/maven-public/ - group repository, includes all three above repos
+http://localhost:8081/repository/maven-central/ - proxy for https://repo1.maven.org/maven2/
+http://localhost:8081/repository/maven-snapshots/ - hosted repository for custom dependencies storage
+http://localhost:8081/repository/maven-releases/ - hosted repository for custom dependencies storage
+http://localhost:8081/repository/maven-public/ - group repository, includes all three above repos
 ```
 
 In most cases it would be enough and you can use them to proxy your dependencies, there is no need to create a separate proxy. But in case if you need this, you can go ahead with the following steps.
@@ -911,7 +911,7 @@ For example, you can group both **Maven Proxy** and **Maven Hosted** repositorie
   	<!--This sends everything else to /public -->
   	<id>nexus</id>
   	<mirrorOf>external:*</mirrorOf>
-	<url>http://localhost:8082/repository/maven-public/</url>
+	<url>http://localhost:8081/repository/maven-public/</url>
 	</mirror>
   </mirrors>
 </settings>
@@ -1032,7 +1032,7 @@ As a result, repository like this should appear:
 One of the options is to use repository URL directly in the conda (or miniconda, or micromamba) command, for example the following command:
 
 ```
-micromamba install -c http://localhost:8082/repository/conda-forge/ numpy
+micromamba install -c http://localhost:8081/repository/conda-forge/ numpy
 ```
 
 downloads numpy package from conda-forge remote repository through our proxy repository.
@@ -1044,10 +1044,10 @@ The better way would be to use .condarc configuration file (more details on how 
 1) Create ~/.condarc file under your user's home directory and fill it with the content similar to the following:
 
 ```
-channel_alias: http://localhost:8082/repository/
+channel_alias: http://localhost:8081/repository/
 ```
 
-This alias means, that every conda command, which is including channel with *channel_name*, will be actually referring to http://localhost:8082/repository/channel_name
+This alias means, that every conda command, which is including channel with *channel_name*, will be actually referring to http://localhost:8081/repository/channel_name
 
 Let's assume that there are proxy repositories for *conda-forge* and *anaconda* channels only:
 
@@ -1177,7 +1177,7 @@ For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 One of the options is to use repository URL directly in he npm command as follows:
 
 ```
-npm --registry http://localhost:8082/repository/npm/ install yarn   
+npm --registry http://localhost:8081/repository/npm/ install yarn   
 ```
 
 This command will download yarn package from the https://registry.npmjs.org/ remote repository and it will be cached in our proxy repository which URL was placed under --registry flag.
@@ -1187,7 +1187,7 @@ Also registry can be configured in the .npmrc configuration file (for more detai
 1) Create ~/.npmrc file uder your user's home directory and fill it with the content similar to the following:
 
 ```
-registry=http://localhost:8082/repository/npm-group/
+registry=http://localhost:8081/repository/npm-group/
 _auth=YWRtaW46bmV4dXM=
 
 ```
@@ -1385,12 +1385,12 @@ The differences are that:
 In your /etc/apt/ folder create a /etc/apt/sources.list config file with the following content:
 
 ```
-deb http://localhost:8082/repository/deb.debian.org_debian/ bullseye main
-deb http://localhost:8082/repository/security.debian.org_debian-security/ bullseye-security main
-deb http://localhost:8082/repository/deb.debian.org_debian/ bullseye-updates main
+deb http://localhost:8081/repository/deb.debian.org_debian/ bullseye main
+deb http://localhost:8081/repository/security.debian.org_debian-security/ bullseye-security main
+deb http://localhost:8081/repository/deb.debian.org_debian/ bullseye-updates main
 ```
 
-Where **localhost:8082** is address and port of your Nexus instance,
+Where **localhost:8081** is address and port of your Nexus instance,
 
 **deb.debian.org_debian** and **security.debian.org_debian-security** are names of proxy repositories created for **http://deb.debian.org/debian** and **http://security.debian.org/debian-security** respectively
 
