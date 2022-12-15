@@ -1185,25 +1185,53 @@ For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 
 #
 
-One of the options is to use repository URL directly in he npm command as follows:
+### Configuring a registry
+Registry can be configured in the `.npmrc` [configuration file](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/configuring-npm)):
 
-```
-npm --registry http://localhost:8081/repository/npm/ install yarn   
-```
-
-This command will download yarn package from the https://registry.npmjs.org/ remote repository and it will be cached in our proxy repository which URL was placed under --registry flag.
-
-Also registry can be configured in the .npmrc configuration file (for more detail please refer to the following [guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/configuring-npm)):
-
-1) Create ~/.npmrc file uder your user's home directory and fill it with the content similar to the following:
+Create `.npmrc` file under your user's home directory and fill it with the content similar to the following:
 
 ```
 registry=http://localhost:8081/repository/npm-group/
-_auth=YWRtaW46bmV4dXM=
-
 ```
 
-Try the following commands to ensure that npm refers to the proxy:
+`registry` string should contain URL to `npm group` repository in Nexus.
+
+### Security
+
+[Nexus npm security guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/npm-security)
+
+#### Auth
+
+`_auth` string can be added to  `.npmrc` file and it should contain base64 encoded credentials of user in Nexus which is able to access npm repositories
+
+In order to base64 encode user credentials, use command similar to the following (example for user with name `admin` and password `admin123`):
+
+```
+echo -n 'admin:admin123' | openssl base64
+```
+
+So, if the result of `echo` is `YWRtaW46cXdlMTIz`, then `_auth=YWRtaW46cXdlMTIz` should be added to `.npmrc` file
+
+#### npm adduser
+
+Run the following command 
+
+```
+npm adduser --registry=http://localhost:8081/repository/npm-group/
+```
+
+And fill the username, password and email (it can contain dummy value)
+
+
+### Example of pulling
+
+One of the options is to use repository URL directly in he npm command as follows:
+
+```
+npm --registry http://localhost:8081/repository/npm/ install yarn --loglevel verbose  
+```
+
+Try the following commands to ensure that npm refers to the proxy using `.npmrc` configuration:
 
 ```
 npm install express --loglevel verbose
@@ -1217,6 +1245,26 @@ git clone https://github.com/mikro-orm/nestjs-realworld-example-app.git
 cd nestjs-realworld-example-app
 npm install
 ```
+
+### Example of pushing
+
+Since the `.npmrc` file usually contains a registry value intended only for getting new packages, a simple way to override this value is to provide a registry to the publish command:
+
+```
+npm publish --registry http://localhost:8081/repository/npm-hosted/
+```
+
+Alternately, you can edit your `package.json` file and add a `publishConfig` section:
+
+```
+"publishConfig" : {
+"registry" : "http://localhost:8081/repository/npm-hosted/"
+},
+```
+
+Then simply run 
+
+```npm publish```
 
 ---
 </details>
