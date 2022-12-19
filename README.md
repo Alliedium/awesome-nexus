@@ -902,7 +902,7 @@ For example, you can group both **Maven Proxy** and **Maven Hosted** repositorie
 
 #
 
-1) In your ~/.m2/ directory create a settings.xml file and fill it with the following data (in case if it already exists, override it's content):
+1) In your `$HOME/.m2/` directory create a `settings.xml` file and fill it with the following data (in case if it already exists, override it's content):
 
 ```
 <settings>
@@ -923,9 +923,8 @@ There's no need to include the path of settings.xml in the maven command after -
 [Advanced mirror settings at Maven web site](http://maven.apache.org/guides/mini/guide-mirror-settings.html).
 
 Now, in order to check that the setting works well, you can go to directory that contain pom.xml and execute mvn package:
-```
-cd /...
 
+```
 mvn package
 ```
 
@@ -952,10 +951,10 @@ mvn install
 
 ### Gradle configuration to use Maven repos from Nexus
 
-1) Create a `gradle.init` file in `~/.gradle` home directory:
+1) Create a `init.gradle` file in `$HOME/.gradle` home directory:
 
 ```
-❯ cat ~/.gradle/init.gradle
+❯ cat $HOME/.gradle/init.gradle
 allprojects {
 repositories {
    mavenLocal()
@@ -1052,15 +1051,15 @@ Content of the -c flag represents URL to the Nexus repository.
 
 The better way would be to use .condarc configuration file (more details on how to use .condarc file can be found [here](https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html))
 
-1) Create ~/.condarc file under your user's home directory and fill it with the content similar to the following:
+1) Create `$HOME/.condarc` file under your user's home directory and fill it with the content similar to the following:
 
 ```
 channel_alias: http://localhost:8081/repository/
 ```
 
-This alias means, that every conda command, which is including channel with *channel_name*, will be actually referring to http://localhost:8081/repository/channel_name
+This alias means, that every conda command, which is including channel with `channel_name`, will be actually referring to `http://localhost:8081/repository/channel_name`
 
-Let's assume that there are proxy repositories for *conda-forge* and *anaconda* channels only:
+Let's assume that there are proxy repositories for `conda-forge` and `anaconda` channels only:
 
 ```
 https://conda.anaconda.org/conda-forge/
@@ -1079,8 +1078,7 @@ Install micromamba:
 
 ```
 yay -S micromamba-bin
-micromamba shell
-logout/login
+micromamba shell init
 ```
 
 Create and activate environment: 
@@ -1126,7 +1124,7 @@ Go to "server administration and configuration" section -> Choose "repositories"
 
 1) Provide the name of proxy
 
-2) Provide the URL of the remote storage (for example, https://registry.npmjs.org/)
+2) Provide the URL of the remote storage (for example, `https://registry.npmjs.org/`)
 
 3) (Optional, can be remained by default) Choose a blob store for the repository if you need to separate it from the default one.
 
@@ -1188,7 +1186,7 @@ For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 ### Configuring a registry
 Registry can be configured in the `.npmrc` [configuration file](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/configuring-npm)):
 
-Create `.npmrc` file under your user's home directory and fill it with the content similar to the following:
+Create `$HOME/.npmrc` file under your user's home directory and fill it with the content similar to the following:
 
 ```
 registry=http://localhost:8081/repository/npm-group/
@@ -1228,10 +1226,10 @@ And fill the username, password and email (it can contain dummy value)
 One of the options is to use repository URL directly in he npm command as follows:
 
 ```
-npm --registry http://localhost:8081/repository/npm/ install yarn --loglevel verbose  
+npm --registry http://localhost:8081/repository/npm-group/ install yarn --loglevel verbose  
 ```
 
-Try the following commands to ensure that npm refers to the proxy using `.npmrc` configuration:
+Or try the following commands to ensure that npm refers to the proxy using `.npmrc` configuration:
 
 ```
 npm install express --loglevel verbose
@@ -1337,7 +1335,7 @@ In order to manage artifacts in both proxy and hosted repos only group repositor
 
 ## pip.conf ##
 
-If you are going to use pip to download pip dependencies, create a pip.conf file.
+If you are going to use pip to download pip dependencies, create a `pip.conf` file.
 
 [pip configuration file info](https://pip.pypa.io/en/stable/topics/configuration/)
 
