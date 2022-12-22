@@ -67,19 +67,19 @@ sudo yum install java-1.8.0-openjdk.x86_64 -y
 
 ## Installation steps:
 
-**1) Move to your /opt directory**
+### 1) Move to your /opt directory
 ```
 cd /opt
 ```
 
-**2) Download the latest version of Nexus**
+### 2) Download the latest version of Nexus
 
 You can get the latest download links for nexus from [here](https://help.sonatype.com/repomanager3/product-information/download) (for example, *https://download.sonatype.com/nexus/3/nexus-3.38.1-01-unix.tar.gz*)
 ```
 sudo wget -O nexus.tar.gz https://download.sonatype.com/nexus/3/latest-unix.tar.gz
 ```
 
-**3) Extract the tar file**
+### 3) Extract the tar file
 ```
 sudo tar -xvzf nexus.tar.gz
 ```
@@ -92,7 +92,7 @@ Rename the nexus files directory
 sudo mv nexus-3* nexus
 ```
 
-**4) Create new user which will run the service**
+### 4) Create new user which will run the service
 
 As a good security practice, it is not advised to run nexus service with root privileges. So create a new user named "nexus" to run the nexus service
 ```
@@ -105,7 +105,7 @@ sudo chown -R nexus:nexus /opt/nexus
 sudo chown -R nexus:nexus /opt/sonatype-work
 ```
 
-**5) Edit "nexus.rc" file**
+### 5) Edit "nexus.rc" file
 
 Open /opt/nexus/bin/nexus.rc file
 ```
@@ -117,7 +117,7 @@ Uncomment run_as_user parameter and set it as follows
 run_as_user="nexus"
 ```
 
-**6) Edit "nexus.vmoptions"**
+### 6) Edit "nexus.vmoptions"
 
 The service will not start at all without any logging in case if it's not enough memory to start.
 
@@ -158,31 +158,56 @@ Below is the example of such values:
 -Djava.endorsed.dirs=lib/endorsed
 ```
 
-**7) Start the service**
+### 7) Start the service
 
-You can configure the repository manager to run as a service with "init.d" or "systemd".
+You can configure the repository manager to [run as a service](https://help.sonatype.com/repomanager3/installation-and-upgrades/run-as-a-service).
 
-Both these methods you can find described at the following [page](https://help.sonatype.com/repomanager3/installation-and-upgrades/run-as-a-service).
+Symlink `/opt/nexus/bin/nexus` to `/etc/init.d/nexus`:
 
-In this guide "update-rc.d" is used - a tool that targets the init scripts in "init.d" to run the nexus service.
-
-Symlink "opt/nexus/bin/nexus" to "/etc/init.d/nexus":
 ```
 sudo ln -s /opt/nexus/bin/nexus /etc/init.d/nexus
 ```
 
-Then activate the service
+Create file `nexus.service` in `/etc/systemd/system/` directory with the following content:
+
 ```
-cd /etc/init.d
-sudo update-rc.d nexus defaults
-sudo service nexus start
+[Unit]
+Description=nexus service
+After=network.target
+  
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/etc/init.d/nexus start
+ExecStop=/etc/init.d/nexus stop 
+User=nexus
+Restart=on-abort
+TimeoutSec=600
+  
+[Install]
+WantedBy=multi-user.target
 ```
 
-**Note:** default settings of Port and Host values which nexus uses once the service is started can be found in "/opt/nexus/etc/nexus-default.properties":
+Then activate the service:
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable nexus.service
+sudo systemctl start nexus.service
+```
+
+Verify that service started successfully (you should see a message notifying you that it is listening for HTTP): 
+
+```
+tail -f /opt/sonatype-work/nexus3/log/nexus.log
+```
+
+**Note:** default settings of Port and Host values which nexus uses once the service is started can be found in `/opt/nexus/etc/nexus-default.properties`:
 
 ![2](https://user-images.githubusercontent.com/74211642/203736167-f6d8c807-d046-46c7-854e-0e2ae687c8ec.png)
 
-**Post install:** Login as admin to Nexus
+
+### Post install: Login as admin to Nexus
 
 To ensure the system begins with a secure state, Nexus Repository Manager generates a unique random password during the system's initial startup which it writes to the data directory (in our case it's "sonatype-work/nexus3") in a file called admin.password.
 
@@ -192,6 +217,7 @@ sudo vi /opt/sonatype-work/nexus3/admin.password
 ```
 
 And then go to http://your_host:8081/ in your browser to log in as "admin" user using the password from the file above.
+
 </details>
 
 
@@ -358,7 +384,7 @@ The next steps (as an example) will be described for a maven type of repository:
 **1)** Specify the name of cleanup policy --> **2)** Choose the type of repository (at the screenshot above it's maven2) --> **3)** Choose Cleanup criteria (at the screenshot above it's about to delete components that haven't been downloaded in 3 days)
 
 These steps should be repeated for all the type of repositories for which you need to have a cleanup job configured.
-For example for the following formats: apt, conda, docker, helm, maven, npm, pypi
+For example for the following formats: APT, conda, docker, helm, maven, npm, PyPI
 
 ![8](https://user-images.githubusercontent.com/74211642/203737469-fbd79fd8-1a95-4b09-ab6f-ec51dfa73183.png)
 
@@ -1267,22 +1293,22 @@ Then simply run
 ---
 </details>
 
-# Setup Pypi repositories
+# Setup PyPI repositories
 
-Official documentation from Sonatype on how to proxy PyPi dependencies: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/pypi-repositories)
+Official documentation from Sonatype on how to proxy PyPI dependencies: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/pypi-repositories)
 
 <details>
-<summary><h4>Setup Proxy Pypi repository</h4></summary>
+<summary><h4>Setup Proxy PyPI repository</h4></summary>
 
 #
 
-Go to "server administration and configuration" section -> Choose "repositories" option on the left sidebar, then click "create repository" button at the very top of the screen -> Choose "pypi (proxy)" type
+Go to "server administration and configuration" section -> Choose "repositories" option on the left sidebar, then click "create repository" button at the very top of the screen -> Choose "PyPI (proxy)" type
 
 ![42](https://user-images.githubusercontent.com/74211642/203767456-22491d88-6b9e-47e4-b78a-36483d63e167.png)
 
 1) Provide the name of proxy
 
-2) Provide the URL of the remote storage (for PyPi the most common is https://pypi.org/). Note: each proxy repository can use only one remote storage
+2) Provide the URL of the remote storage (for PyPI the most common is https://pypi.org/). Note: each proxy repository can use only one remote storage
 
 3) Change the blobstore if needed (or keep default)
 
@@ -1297,28 +1323,28 @@ As a result, repository like this should appear:
 </details>
 
 <details>
-<summary><h4>Setup Hosted Pypi repository</h4></summary>
+<summary><h4>Setup Hosted PyPI repository</h4></summary>
 
 #
 
-If you want to have an ability to push your own PyPi artifacts to the Nexus, you would need to have Hosted Repository set up.
+If you want to have an ability to push your own PyPI artifacts to the Nexus, you would need to have Hosted Repository set up.
 
-The creation of Hosted PyPi repository in Nexus is pretty similar to the **Proxy PyPi repository** creation.
+The creation of Hosted PyPI repository in Nexus is pretty similar to the **Proxy PyPI repository** creation.
 
 The differences are that:
 
-1) When choosing the repository type to be created, choose "pypi (hosted)"
+1) When choosing the repository type to be created, choose "PyPI (hosted)"
 
 2) Provide a name of repository, choose the blobstore (or remain it default) and apply a cleanup policy if needed (it should be set up as above in the **cleanup policies** section of this guide)
 
 </details>
 
 <details>
-<summary><h4>Setup Group Pypi repository</h4></summary>
+<summary><h4>Setup Group PyPI repository</h4></summary>
 
 #
 
-Several PyPi repositories can be grouped in order to simplify access if you're going to use different remote storages at the same time.
+Several PyPI repositories can be grouped in order to simplify access if you're going to use different remote storages at the same time.
 For more details please refer to the [guide](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management) on repository types (group repository section).
 
 So, at the screenshot below there's a proxy to `https://pypi.org/` and `hosted` repository for our own artifacts which are added to a single `group` repository. 
@@ -1406,15 +1432,15 @@ twine upload -r pypi dist/*
 
 </details>
 
-# Apt repositories for Debian
+# APT repositories for Debian
 
 
 <details> 
-<summary><h4>Setup Proxy Apt repository</h4></summary>
+<summary><h4>Setup Proxy APT repository</h4></summary>
 
 #
 
-Go to "server administration and configuration" section -> Choose "repositories" option on the left sidebar, then click "create repository" button at the very top of the screen -> Choose "apt (proxy)" type
+Go to "server administration and configuration" section -> Choose "repositories" option on the left sidebar, then click "create repository" button at the very top of the screen -> Choose "APT (proxy)" type
 
 
 1) Provide the name of proxy
@@ -1429,7 +1455,7 @@ Go to "server administration and configuration" section -> Choose "repositories"
 
 
 <details> 
-<summary><h4>Setup Hosted Apt repository</h4></summary>
+<summary><h4>Setup Hosted APT repository</h4></summary>
 
 #
 
