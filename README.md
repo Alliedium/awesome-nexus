@@ -670,6 +670,86 @@ Then authenticate as "docker-contributor" user (password: 123123123) and push th
 
 </details>
 
+# Configure K3s cluster to use Nexus Docker repositories
+
+<details>
+<summary><h4>Setup K3d cluster</h4></summary>
+
+The most simple way to configure registries while creating [K3d cluster](https://k3d.io/) is to use [`--registry-config` option](https://k3d.io/v5.4.6/usage/registries/).
+For this it is necessary first to download [this](./k3d-demo-cluster-registries.yaml) [K3s registries configuration file](https://rancher.com/docs/k3s/latest/en/installation/private-registry/)
+(here we download it to temporary files, but feel free to change the path to this file in the commands below):
+
+```
+curl -L https://raw.githubusercontent.com/Alliedium/awesome-nexus/main/k3d-demo-cluster-registries.yaml > /tmp/k3d-demo-cluster-registries.yaml
+```
+The downloaded file above assumes Nexus is launched on Docker host machine (for example, as a [Docker container](./README.md#run-nexus-as-a-docker-container)). If it is not the case, then please change
+[`host.k3d.internal`](https://k3d.io/v5.4.6/faq/faq/#how-to-access-services-like-a-database-running-on-my-docker-host-machine) (and possibly also the protocol `http`) to the IP address (and the respective protocol) of Nexus.
+
+Then create K3d cluster via the following command (feel free to add also other necessary options):
+```
+k3d cluster create demo --registry-config /tmp/k3d-demo-cluster-registries.yaml
+```
+
+More advanced and recommended way to do the above and to add other necessary options to create a K3d cluster is based on [K3d config files](https://k3d.io/v5.4.6/usage/configfile/).
+For this it is necessary first to download [this K3d config file](./k3d-demo-cluster-config.yaml)
+(here we download it to temporary files, but feel free to change the path to this file in the commands below):
+
+```
+curl -L https://raw.githubusercontent.com/Alliedium/awesome-nexus/main/k3d-demo-cluster-config.yaml > /tmp/k3d-demo-cluster-config.yaml
+```
+The downloaded file above also assumes Nexus is launched on Docker host machine (for example, as a [Docker container](./README.md#run-nexus-as-a-docker-container)). If it is not the case, then please change
+[`host.k3d.internal`](https://k3d.io/v5.4.6/faq/faq/#how-to-access-services-like-a-database-running-on-my-docker-host-machine) (and possibly also the protocol `http`) to the IP address (and the respective protocol) of Nexus.
+Please also feel free to add your own options to this K3d config file according to [example for all options](https://k3d.io/v5.4.6/usage/configfile/#all-options-example) (you may select some subset of options).
+
+Then create K3d cluster via one of the following commands (the second one just overrides the name of the cluster created over the name given in the K3d config file):
+```
+k3d cluster create --config /tmp/k3d-demo-cluster-config.yaml
+```
+or
+```
+k3d cluster create demo --config /tmp/k3d-demo-cluster-config.yaml
+```
+Besides configuring mirror registries for K3d cluster the above configuration also blocks the access to the respective public registries to prevent K3d cluster from
+downloading Docker images not via Nexus.
+
+In both cases described above on each node of K3d cluster the file [`/etc/rancher/k3s/registries.yaml`](https://docs.k3s.io/installation/private-registry) is created.
+This may be verified either by acessing node shell in OpenLens (see the section `Access Node Shell` from the article [Install Lens – Best Kubernetes Dashboard & IDE](https://computingforgeeks.com/install-lens-best-kubernetes-dashboard/))
+or by using a special [node-shell plugin](https://github.com/kvaps/kubectl-node-shell) (see the instructions on its [installation](https://github.com/kvaps/kubectl-node-shell#installation) and [usage](https://github.com/kvaps/kubectl-node-shell#usage)).
+After launching node shell for each node execute the following command:
+```
+cat /etc/rancher/k3s/registries.yaml
+```
+In fact, this file makes special K3s service to create another file named [`/var/lib/rancher/k3s/agent/etc/containerd/config.toml`](https://docs.k3s.io/advanced#configuring-containerd),
+because Kubernetes uses [containerd](https://docs.k3s.io/advanced#configuring-containerd) under the hood while working with containers and images. Please execute the command
+```
+cat /var/lib/rancher/k3s/agent/etc/containerd/config.toml 
+```
+to see the contents of this file.
+
+Further, it is possible to look at the images pulled into local registry of each node, this is done by the command:
+```
+crictl images
+```
+Some other commands given in the section [Debugging Kubernetes nodes with crictl](https://kubernetes.io/docs/tasks/debug/debug-cluster/crictl/).
+To understand all this even deeper in details see also the manual on [how to use containerd from command line](https://iximiuz.com/en/posts/containerd-command-line-clients/).
+Let us give also the command that clears all the pulled images from local registry of a node:
+```
+crictl rmi $(crictl images -q)
+```
+This should be done if something concerning configuration of Nexus mirrors was done improperly and the images were pulled not from Nexus, but from public registries.
+After fixing the configuration and removing the pulled images please redeploy the resources in the cluster and check the images begin to be pulled from Nexus.
+
+</details>
+
+<details>
+<summary><h4>Setup K3s cluster</h4></summary>
+
+For an ordinary K3s cluster (that is not created in Docker via [K3d](https://k3d.io/)) the procedure consists of creating the file [`/etc/rancher/k3s/registries.yaml`](https://docs.k3s.io/installation/private-registry)
+manually on each particular Kubernetes node. Thus, please refer to the previous section above for the format of the file to be created as well as for the commands that may be
+executed on Kubernetes nodes.
+
+</details>
+
 # Setup Helm repositories
 
 Official documentation from Sonatype on how to proxy Helm: [link](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/helm-repositories)
