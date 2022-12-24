@@ -1,0 +1,16 @@
+mirrors:
+  "docker.io":
+    endpoint:
+      - http://host.k3d.internal:8183
+  "gcr.io":
+    endpoint:
+      - http://host.k3d.internal:8183
+  "quay.io":
+    endpoint:
+      - http://host.k3d.internal:8183
+  "ghcr.io":
+    endpoint:
+      - http://host.k3d.internal:8183
+  "nexus.hosted":
+    endpoint:
+      - http://host.k3d.internal:8182

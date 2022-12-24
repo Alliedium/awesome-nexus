@@ -1,0 +1,40 @@
+apiVersion: k3d.io/v1alpha4 # this will change in the future as we make everything more stable
+kind: Simple # internally, we also have a Cluster config, which is not yet available externally
+metadata:
+  name: demo # name that you want to give to your cluster (will still be prefixed with `k3d-`)
+servers: 1 # same as `--servers 1`
+ports:
+  - port: 7080:8080 # same as `--port 7080:8080@loadbalancer'`
+    nodeFilters:
+      - loadbalancer
+registries: # define how registries should be created or used
+  config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
+    mirrors:
+      "docker.io":
+        endpoint:
+          - http://host.k3d.internal:8183
+      "gcr.io":
+        endpoint:
+          - http://host.k3d.internal:8183
+      "quay.io":
+        endpoint:
+          - http://host.k3d.internal:8183
+      "ghcr.io":
+        endpoint:
+          - http://host.k3d.internal:8183
+      "nexus.hosted":
+        endpoint:
+          - http://host.k3d.internal:8182
+options:
+  k3s: # options passed on to K3s itself
+    extraArgs: # additional arguments passed to the `k3s server|agent` command; same as `--k3s-arg`
+      - arg: --no-deploy=traefik
+        nodeFilters:
+          - server:*
+hostAliases: # /etc/hosts style entries to be injected into /etc/hosts in the node containers and in the NodeHosts section in CoreDNS
+  - ip: 0.0.0.0
+    hostnames: 
+      - registry-1.docker.io
+      - gcr.io
+      - quay.io
+      - ghcr.io
