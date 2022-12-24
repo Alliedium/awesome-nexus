@@ -675,7 +675,10 @@ Then authenticate as "docker-contributor" user (password: 123123123) and push th
 <details>
 <summary><h4>Setup K3d cluster</h4></summary>
 
-The most simple way to configure registries while creating [K3d cluster](https://k3d.io/) is to use [`--registry-config` option](https://k3d.io/v5.4.6/usage/registries/).
+Let us firstly consider [K3d cluster](https://k3d.io/) as a paricular case of [K3s cluster](https://docs.k3s.io/) that runs in Docker and may be easily configured
+and tested. At the end of this section it will be clear that the general concepts are applicable to [K3s clusters] in general, this is considered in the next section.
+
+The most simple way to configure registries while creating K3d clusters is to use [`--registry-config` option](https://k3d.io/v5.4.6/usage/registries/).
 For this it is necessary first to download [this](./k3d-demo-cluster-registries.yaml) [K3s registries configuration file](https://rancher.com/docs/k3s/latest/en/installation/private-registry/)
 (here we download it to temporary files, but feel free to change the path to this file in the commands below):
 
@@ -744,7 +747,7 @@ After fixing the configuration and removing the pulled images please redeploy th
 <details>
 <summary><h4>Setup K3s cluster</h4></summary>
 
-For an ordinary K3s cluster (that is not created in Docker via [K3d](https://k3d.io/)) the procedure consists of creating the file [`/etc/rancher/k3s/registries.yaml`](https://docs.k3s.io/installation/private-registry)
+For a general K3s cluster (that is not created in Docker via [K3d](https://k3d.io/)) the procedure consists of creating the file [`/etc/rancher/k3s/registries.yaml`](https://docs.k3s.io/installation/private-registry)
 manually on each particular Kubernetes node. Thus, please refer to the previous section above for the format of the file to be created as well as for the commands that may be
 executed on Kubernetes nodes.
 
