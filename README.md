@@ -675,8 +675,9 @@ Then authenticate as "docker-contributor" user (password: 123123123) and push th
 <details>
 <summary><h4>Setup K3d cluster</h4></summary>
 
-Let us firstly consider [K3d cluster](https://k3d.io/) as a paricular case of [K3s cluster](https://docs.k3s.io/) that runs in Docker and may be easily configured
-and tested. At the end of this section it will be clear that the concepts considered in this section are applicable to K3s clusters in general. The latter is discussed in the next section.
+Let us start with considering [K3d cluster](https://k3d.io/) as a particular case of [K3s cluster](https://docs.k3s.io/) that runs in Docker and may be easily configured
+and tested. At the end of this section it will be clear that the concepts described in this section are applicable to K3s clusters in general. What differs is only the way
+the things are configured. The latter is discussed in the next section.
 
 The most simple way to configure registries while creating K3d clusters is to use [`--registry-config` option](https://k3d.io/v5.4.6/usage/registries/).
 For this it is necessary first to download [this](./k3d-demo-cluster-registries.yaml) [K3s registries configuration file](https://rancher.com/docs/k3s/latest/en/installation/private-registry/)
