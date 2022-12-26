@@ -526,7 +526,6 @@ Instead, if your configuration of client machine is accurate, your requests to t
 0.0.0.0 repo.maven.apache.org
 
 #---Helm registires
-0.0.0.0 app.k8slens.dev
 0.0.0.0 oxyno-zeta.github.io
 0.0.0.0 dapr.github.io
 0.0.0.0 charts.bitnami.com
@@ -886,6 +885,20 @@ The differences are that:
 
 #
 
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Helm registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Helm registires
+0.0.0.0 oxyno-zeta.github.io
+0.0.0.0 dapr.github.io
+0.0.0.0 charts.bitnami.com
+0.0.0.0 aws.github.io
+0.0.0.0 charts.crossplane.io
+0.0.0.0 argoproj.github.io
+0.0.0.0 bitnami-labs.github.io
+```
+
 ### **How to fetch Helm charts from helm-proxy repo**
 
 Once you have Helm up and running you'll want to run a command similar to the following to add a Helm repo:
@@ -1072,6 +1085,15 @@ For example, you can group both **Maven Proxy** and **Maven Hosted** repositorie
 
 #
 
+0) As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Maven registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Maven registries
+0.0.0.0 repo1.maven.org
+0.0.0.0 repo.maven.apache.org
+```
+
 1) In your `$HOME/.m2/` directory create a `settings.xml` file and fill it with the following data (in case if it already exists, override it's content):
 
 ```
@@ -1208,6 +1230,13 @@ As a result, repository like this should appear:
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Conda registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Conda registry
+0.0.0.0 conda.anaconda.org
+```
 
 One of the options is to use repository URL directly in the conda (or miniconda, or micromamba) command, for example the following command:
 
@@ -1352,6 +1381,14 @@ For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to npm registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---npm registry
+0.0.0.0 registry.npmjs.org
+```
 
 ### Configuring a registry
 Registry can be configured in the `.npmrc` [configuration file](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/configuring-npm)):
@@ -1502,6 +1539,13 @@ In order to manage artifacts in both proxy and hosted repos only group repositor
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to PyPI registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---PyPI registry
+0.0.0.0 pypi.org
+```
 
 ## pip.conf ##
 
@@ -1611,6 +1655,15 @@ Go to "server administration and configuration" section -> Choose "repositories"
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to APT registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---APT registries
+0.0.0.0 deb.debian.org
+0.0.0.0 security.debian.org
+```
 
 In your /etc/apt/ folder create a /etc/apt/sources.list config file with the following content:
 
