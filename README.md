@@ -496,6 +496,54 @@ Save the user
 </details>
 
 
+<details>
+<summary><h4>Limit direct access to domains which are used as Nexus Proxy</h4></summary>
+
+#
+Once you setup Proxy repository in Nexus for a specific remote registry, it would be better to limit direct access to these registries from a client's machine
+to ensure that each and every command to pull dependencies refers to Nexus repository and uses corresponding Nexus Proxy, but not remote registry from Internet itself.
+
+So, you can create new entries in `/etc/hosts` file as follows (changing this file requires `sudo` privileges) in advance and map necessary domains to `0.0.0.0`, 
+which means that access to these domain names in Internet will be limited. 
+
+Instead, if your configuration of client machine is correct, your requests to the same remote registries will be done through Nexus Proxy repositories.
+
+```
+#---Docker registries
+0.0.0.0 registry-1.docker.io
+0.0.0.0 quay.io
+0.0.0.0 gcr.io
+0.0.0.0 ghcr.io
+
+#---PyPI registry
+0.0.0.0 pypi.org
+
+#---Conda registry
+0.0.0.0 conda.anaconda.org
+
+#---Maven registries
+0.0.0.0 repo1.maven.org
+0.0.0.0 repo.maven.apache.org
+
+#---Helm registires
+0.0.0.0 oxyno-zeta.github.io
+0.0.0.0 dapr.github.io
+0.0.0.0 charts.bitnami.com
+0.0.0.0 aws.github.io
+0.0.0.0 charts.crossplane.io
+0.0.0.0 argoproj.github.io
+0.0.0.0 bitnami-labs.github.io
+
+#---APT registries
+0.0.0.0 deb.debian.org
+0.0.0.0 security.debian.org
+
+#---npm registry
+0.0.0.0 registry.npmjs.org
+```
+
+</details>
+
 # Setup Docker repositories
 
 **Prerequisite:** Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
@@ -644,6 +692,17 @@ docker info
 At the bottom you should see records similar to the following:
 
 ![14](https://user-images.githubusercontent.com/74211642/203763787-be8f39eb-080b-4172-9f4a-5b2f5cdf03a3.png)
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above, 
+block access to Docker registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Docker registries
+0.0.0.0 registry-1.docker.io
+0.0.0.0 quay.io
+0.0.0.0 gcr.io
+0.0.0.0 ghcr.io
+```
 
 Now if you run in your console:
 
@@ -825,6 +884,20 @@ The differences are that:
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Helm registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Helm registires
+0.0.0.0 oxyno-zeta.github.io
+0.0.0.0 dapr.github.io
+0.0.0.0 charts.bitnami.com
+0.0.0.0 aws.github.io
+0.0.0.0 charts.crossplane.io
+0.0.0.0 argoproj.github.io
+0.0.0.0 bitnami-labs.github.io
+```
 
 ### **How to fetch Helm charts from helm-proxy repo**
 
@@ -1012,6 +1085,15 @@ For example, you can group both **Maven Proxy** and **Maven Hosted** repositorie
 
 #
 
+0) As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Maven registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Maven registries
+0.0.0.0 repo1.maven.org
+0.0.0.0 repo.maven.apache.org
+```
+
 1) In your `$HOME/.m2/` directory create a `settings.xml` file and fill it with the following data (in case if it already exists, override it's content):
 
 ```
@@ -1148,6 +1230,13 @@ As a result, repository like this should appear:
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to Conda registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Conda registry
+0.0.0.0 conda.anaconda.org
+```
 
 One of the options is to use repository URL directly in the conda (or miniconda, or micromamba) command, for example the following command:
 
@@ -1292,6 +1381,14 @@ For example, `Proxy` and `Hosted` repositories can be placed in the same group:
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to npm registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---npm registry
+0.0.0.0 registry.npmjs.org
+```
 
 ### Configuring a registry
 Registry can be configured in the `.npmrc` [configuration file](https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/npm-registry/configuring-npm)):
@@ -1442,6 +1539,13 @@ In order to manage artifacts in both proxy and hosted repos only group repositor
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to PyPI registry on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---PyPI registry
+0.0.0.0 pypi.org
+```
 
 ## pip.conf ##
 
@@ -1551,6 +1655,15 @@ Go to "server administration and configuration" section -> Choose "repositories"
 <summary><h4>Client configuration & How to use</h4></summary>
 
 #
+
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above,
+block access to APT registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---APT registries
+0.0.0.0 deb.debian.org
+0.0.0.0 security.debian.org
+```
 
 In your /etc/apt/ folder create a /etc/apt/sources.list config file with the following content:
 
