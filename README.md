@@ -496,6 +496,55 @@ Save the user
 </details>
 
 
+<details>
+<summary><h4>Limit direct access to domains which are used as Nexus Proxy</h4></summary>
+
+#
+Once you setup Proxy repository in Nexus for a specific remote registry, would be better to limit direct access to these registries from a client's machine
+to ensure that each and every command to pull dependencies refers to Nexus repository and uses corresponding Nexus Proxy, but not remote registry from Internet itself.
+
+So, you can create new entries in `/etc/hosts` file as follows (changing this file requires `sudo` privileges) in advance and map necessary domains to `0.0.0.0`, 
+which means that access to these domain names in Internet will be limited. 
+
+Instead, if your configuration of client machine is accurate, your requests to the same remote registries will be done through Nexus Proxy repositories.
+
+```
+#---Docker registries
+0.0.0.0 registry-1.docker.io
+0.0.0.0 quay.io
+0.0.0.0 gcr.io
+0.0.0.0 ghcr.io
+
+#---PyPI registry
+0.0.0.0 pypi.org
+
+#---Conda registry
+0.0.0.0 conda.anaconda.org
+
+#---Maven registries
+0.0.0.0 repo1.maven.org
+0.0.0.0 repo.maven.apache.org
+
+#---Helm registires
+0.0.0.0 app.k8slens.dev
+0.0.0.0 oxyno-zeta.github.io
+0.0.0.0 dapr.github.io
+0.0.0.0 charts.bitnami.com
+0.0.0.0 aws.github.io
+0.0.0.0 charts.crossplane.io
+0.0.0.0 argoproj.github.io
+0.0.0.0 bitnami-labs.github.io
+
+#---APT registries
+0.0.0.0 deb.debian.org
+0.0.0.0 security.debian.org
+
+#---npm registry
+0.0.0.0 registry.npmjs.org
+```
+
+</details>
+
 # Setup Docker repositories
 
 **Prerequisite:** Go to "server administration and configuration" section -> Choose "Security" -> "Realms" option on the left sidebar -> Add Docker Bearer Token Realm to the active block
