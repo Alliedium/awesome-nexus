@@ -500,13 +500,13 @@ Save the user
 <summary><h4>Limit direct access to domains which are used as Nexus Proxy</h4></summary>
 
 #
-Once you setup Proxy repository in Nexus for a specific remote registry, would be better to limit direct access to these registries from a client's machine
+Once you setup Proxy repository in Nexus for a specific remote registry, it would be better to limit direct access to these registries from a client's machine
 to ensure that each and every command to pull dependencies refers to Nexus repository and uses corresponding Nexus Proxy, but not remote registry from Internet itself.
 
 So, you can create new entries in `/etc/hosts` file as follows (changing this file requires `sudo` privileges) in advance and map necessary domains to `0.0.0.0`, 
 which means that access to these domain names in Internet will be limited. 
 
-Instead, if your configuration of client machine is accurate, your requests to the same remote registries will be done through Nexus Proxy repositories.
+Instead, if your configuration of client machine is correct, your requests to the same remote registries will be done through Nexus Proxy repositories.
 
 ```
 #---Docker registries
