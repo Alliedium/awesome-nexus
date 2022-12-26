@@ -694,6 +694,17 @@ At the bottom you should see records similar to the following:
 
 ![14](https://user-images.githubusercontent.com/74211642/203763787-be8f39eb-080b-4172-9f4a-5b2f5cdf03a3.png)
 
+As mentioned in [/etc/hosts](#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) config section above, 
+block access to Docker registries on your client's system adding the following lines to `/etc/hosts` file - this action **requires sudo** privileges (**skip** this step if you already did it):
+
+```
+#---Docker registries
+0.0.0.0 registry-1.docker.io
+0.0.0.0 quay.io
+0.0.0.0 gcr.io
+0.0.0.0 ghcr.io
+```
+
 Now if you run in your console:
 
 ```
