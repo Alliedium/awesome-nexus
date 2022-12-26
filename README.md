@@ -773,7 +773,7 @@ or
 k3d cluster create demo --config /tmp/k3d-demo-cluster-config.yaml
 ```
 Besides configuring mirror registries for K3d cluster the above configuration also blocks the access to the respective public registries to prevent K3d cluster from
-downloading Docker images not via Nexus.
+downloading Docker images not via Nexus (see also the respective [step](https://github.com/Alliedium/awesome-nexus#limit-direct-access-to-domains-which-are-used-as-nexus-proxy) from post-install actions above for details).
 
 In both cases described above on each node of K3d cluster the file [`/etc/rancher/k3s/registries.yaml`](https://docs.k3s.io/installation/private-registry) is created.
 This may be verified either by acessing node shell in OpenLens (see the section `Access Node Shell` from the article [Install Lens – Best Kubernetes Dashboard & IDE](https://computingforgeeks.com/install-lens-best-kubernetes-dashboard/))
