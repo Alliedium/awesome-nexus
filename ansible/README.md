@@ -30,7 +30,7 @@ ansible-galaxy install ansible-thoteam.nexus3-oss
 ansible-galaxy role list
 ```
 
-* Change [hosts.yaml](./inventory/hosts.yaml) file: 
+* Copy [`./sample_inventory`](./sample_inventory/hosts.yaml) to `./my_nexus_inventory` folder and change `./my_nexus_inventory/hosts.yaml` file: 
 
 ```
 sed -i 's/@hostname/172.17.0.3/g' ./inventory/hosts.yaml &&
@@ -43,7 +43,7 @@ Above example is for host machine `172.17.0.3`, connection via `ssh` for user `r
 * Run [playbook](./playbooks/install_nexus.yaml)
 
 ```
-ansible-playbook -v ./playbooks/install-nexus.yaml -i ./inventory
+ansible-playbook -v ./playbooks/install-nexus.yaml -i ./my_nexus_inventory
 ```
 
 ## Notes
