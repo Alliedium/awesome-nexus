@@ -10,6 +10,11 @@ Target machine for Nexus mentioned as `@hostname` in [hosts.yaml](./inventory/ho
 * Rsync has to be installed on the target machine (it is not needed on the host running ansible if different)
 
 * Java 8 (mandatory).
+  
+  ```
+  apt install openjdk-8-jdk
+  apt install rsync
+  ```
 
 ## Install Nexus via [playbook](./playbooks/install_nexus.yaml)
 
