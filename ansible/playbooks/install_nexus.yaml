@@ -269,6 +269,8 @@
     nexus_repos_conda_proxy:
       - name: anaconda
         remote_url: 'https://conda.anaconda.org/anaconda/'
+      - name: plotly
+        remote_url: 'https://conda.anaconda.org/plotly/'
       - name: conda-forge
         remote_url: 'https://conda.anaconda.org/conda-forge/'
 
