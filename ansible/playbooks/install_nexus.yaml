@@ -7,7 +7,6 @@
      private: yes
    - name: user_password
      prompt: "User_password"
-     private: yes
 
   vars:
     nexus_admin_password: "{{ admin_password }}"
@@ -17,6 +16,7 @@
     nexus_anonymous_access: true
     nexus_docker_bearer_token_realm: true
     nexus_npm_bearer_token_realm: true
+    nexus_cleanup_policies_last_downloaded_days: 15
     nexus_config_maven: true
     nexus_config_pypi: true
     nexus_config_docker: true
@@ -77,43 +77,43 @@
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: conda_cleanup
         format: conda
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: apt_cleanup
         format: apt
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: docker_cleanup
         format: docker
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: helm_cleanup
         format: helm
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: npm_cleanup
         format: npm
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
       - name: pypi_cleanup
         format: pypi
         mode:
         notes: ""
         criteria:
-          lastDownloaded: 15
+          lastDownloaded: "{{ nexus_cleanup_policies_last_downloaded_days }}"
     nexus_repos_maven_proxy: []
     nexus_repos_maven_hosted: []
     nexus_repos_maven_group: []
