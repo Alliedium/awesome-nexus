@@ -11,6 +11,7 @@
 
   vars:
     nexus_admin_password: "{{ admin_password }}"
+    nexus_upgrade: true
     nexus_docker_hosted_port: 8182
     nexus_docker_proxy_port: 8181
     nexus_docker_group_port: 8183
