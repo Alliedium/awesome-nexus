@@ -266,7 +266,7 @@
         remote_url: https://argoproj.github.io/argo-helm/
       - name: bitnami-labs.github.io_sealed-secrets
         remote_url: https://bitnami-labs.github.io/sealed-secrets
-      - name: https://jaegertracing.github.io/helm-charts
+      - name: jaegertracing.github.io/helm-charts
         remote_url: https://jaegertracing.github.io/helm-charts
     nexus_repos_conda_proxy:
       - name: anaconda
