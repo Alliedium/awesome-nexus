@@ -148,6 +148,8 @@
     nexus_repos_pypi_proxy:
       - name: pypi.org
         remote_url: 'https://pypi.org/'
+        cleanup_policies:
+          - pypi_cleanup
     _nexus_repos_docker_defaults:
       blob_store: "{{ nexus_blob_names.docker.blob }}"
       force_basic_auth: false
@@ -172,6 +174,8 @@
         index_type: "HUB"
         remote_url: "https://registry-1.docker.io"
         use_nexus_certificates_to_access_index: false
+        cleanup_policies:
+          - docker_cleanup
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -185,6 +189,8 @@
         index_type: "REGISTRY"
         remote_url: "https://quay.io"
         use_nexus_certificates_to_access_index: false
+        cleanup_policies:
+          - docker_cleanup
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -198,6 +204,8 @@
         index_type: "REGISTRY"
         remote_url: "https://gcr.io"
         use_nexus_certificates_to_access_index: false
+        cleanup_policies:
+          - docker_cleanup
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -211,6 +219,8 @@
         index_type: "REGISTRY"
         remote_url: "https://ghcr.io"
         use_nexus_certificates_to_access_index: false
+        cleanup_policies:
+          - docker_cleanup
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -242,41 +252,69 @@
       - name: npm
         blob_store: "{{ nexus_blob_names.npm.blob }}"
         remote_url: https://registry.npmjs.org/
+        cleanup_policies:
+          - npm_cleanup
     nexus_repos_apt_proxy:
       - name: deb.debian.org_debian
         remote_url: http://deb.debian.org/debian
         distribution: bullseye
         flat: false
+        cleanup_policies:
+          - apt_cleanup
       - name: security.debian.org_debian-security
         remote_url: http://security.debian.org/debian-security
         distribution: bullseye
         flat: false
+        cleanup_policies:
+          - apt_cleanup
     nexus_repos_helm_hosted:
       - name: helm-hosted
     nexus_repos_helm_proxy:
       - name: oxyno-zeta.github.io_helm-charts-v2
         remote_url: https://oxyno-zeta.github.io/helm-charts-v2/
+        cleanup_policies:
+          - helm_cleanup
       - name: dapr.github.io_helm-charts
         remote_url: https://dapr.github.io/helm-charts/
+        cleanup_policies:
+          - helm_cleanup
       - name: charts.bitnami.com_bitnami
         remote_url: https://charts.bitnami.com/bitnami
+        cleanup_policies:
+          - helm_cleanup
       - name: aws.github.io_eks-charts
         remote_url: https://aws.github.io/eks-charts
+        cleanup_policies:
+          - helm_cleanup
       - name: charts.crossplane.io_stable
         remote_url: https://charts.crossplane.io/stable
+        cleanup_policies:
+          - helm_cleanup
       - name: argoproj.github.io_argo-helm
         remote_url: https://argoproj.github.io/argo-helm/
+        cleanup_policies:
+          - helm_cleanup
       - name: bitnami-labs.github.io_sealed-secrets
         remote_url: https://bitnami-labs.github.io/sealed-secrets
+        cleanup_policies:
+          - helm_cleanup
       - name: jaegertracing.github.io_helm-charts
         remote_url: https://jaegertracing.github.io/helm-charts
+        cleanup_policies:
+          - helm_cleanup
     nexus_repos_conda_proxy:
       - name: anaconda
         remote_url: 'https://conda.anaconda.org/anaconda/'
+        cleanup_policies:
+          - conda_cleanup
       - name: plotly
         remote_url: 'https://conda.anaconda.org/plotly/'
+        cleanup_policies:
+          - conda_cleanup
       - name: conda-forge
         remote_url: 'https://conda.anaconda.org/conda-forge/'
+        cleanup_policies:
+          - conda_cleanup
 
   roles:
     - ansible-thoteam.nexus3-oss
