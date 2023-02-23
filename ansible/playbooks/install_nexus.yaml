@@ -142,7 +142,6 @@
     nexus_repos_maven_group:
       - name: maven-public
         version_policy: mixed  # release, snapshot or mixed
-        layout_policy: permissive  # strict or permissive
         strict_content_validation: true
         member_repos:
           - maven-central
