@@ -5,7 +5,7 @@
 
 Target machine for Nexus mentioned as `@hostname` in [hosts.yaml](./inventory/hosts.yaml) file should have:
 
-* Compatible OS. This role is tested through molecule on travis CI for CentOS 8, Ubuntu Bionic (18.04), and Debian buster. Other molecule scenarios can be played locally for CentOS 7, Ubuntu Xenial (16.04), and Debian stretch
+* Compatible OS. This role is tested through molecule on travis CI for CentOS 8, Ubuntu Bionic (18.04), and Debian buster. Other molecule scenarios can be played locally for CentOS 7, Ubuntu Xenial (16.04), and Debian stretch. From now on we assume that Ubuntu Jammy 22.04 LTS is used.
 
 * Rsync has to be installed on the target machine (it is not needed on the host running ansible if different)
 
