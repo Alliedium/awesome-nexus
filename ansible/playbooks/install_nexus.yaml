@@ -18,7 +18,8 @@
     nexus_anonymous_access: true
     nexus_docker_bearer_token_realm: true
     nexus_npm_bearer_token_realm: true
-    nexus_cleanup_policies_last_downloaded_days: 15
+    #This criteria sets how long to keep content based on when a component was last downloaded.
+    nexus_cleanup_policies_last_downloaded_days: 3000
     nexus_config_maven: true
     nexus_config_pypi: true
     nexus_config_docker: true
