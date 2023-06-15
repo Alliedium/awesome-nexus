@@ -18,6 +18,7 @@
     nexus_anonymous_access: true
     nexus_docker_bearer_token_realm: true
     nexus_npm_bearer_token_realm: true
+    nexus_enabled_cleanup_policies: false
     nexus_cleanup_policies_last_downloaded_days: 15
     nexus_config_maven: true
     nexus_config_pypi: true
@@ -131,7 +132,7 @@
         remote_url: 'https://repo1.maven.org/maven2/'
         layout_policy: permissive
         cleanup_policies:
-          - mvn_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}mvn_cleanup{% else %} {% endif %}"
     nexus_repos_maven_hosted:
       - name: maven-releases
         version_policy: release
@@ -177,7 +178,7 @@
       - name: pypi.org
         remote_url: 'https://pypi.org/'
         cleanup_policies:
-          - pypi_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}pypi_cleanup{% else %} {% endif %}"
     _nexus_repos_docker_defaults:
       blob_store: "{{ nexus_blob_names.docker.blob }}"
       force_basic_auth: false
@@ -203,7 +204,7 @@
         remote_url: "https://registry-1.docker.io"
         use_nexus_certificates_to_access_index: false
         cleanup_policies:
-          - docker_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}docker_cleanup{% else %} {% endif %}"
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -218,7 +219,7 @@
         remote_url: "https://quay.io"
         use_nexus_certificates_to_access_index: false
         cleanup_policies:
-          - docker_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}docker_cleanup{% else %} {% endif %}"
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -233,7 +234,7 @@
         remote_url: "https://gcr.io"
         use_nexus_certificates_to_access_index: false
         cleanup_policies:
-          - docker_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}docker_cleanup{% else %} {% endif %}"
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -248,7 +249,7 @@
         remote_url: "https://ghcr.io"
         use_nexus_certificates_to_access_index: false
         cleanup_policies:
-          - docker_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}docker_cleanup{% else %} {% endif %}"
         # cache_foreign_layers: true
         # foreign_layer_url_whitelist:
         #   - "https?://go\\.microsoft\\.com/.*"
@@ -281,68 +282,68 @@
         blob_store: "{{ nexus_blob_names.npm.blob }}"
         remote_url: https://registry.npmjs.org/
         cleanup_policies:
-          - npm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}npm_cleanup{% else %} {% endif %}"
     nexus_repos_apt_proxy:
       - name: deb.debian.org_debian
         remote_url: http://deb.debian.org/debian
         distribution: bullseye
         flat: false
         cleanup_policies:
-          - apt_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}apt_cleanup{% else %} {% endif %}"
       - name: security.debian.org_debian-security
         remote_url: http://security.debian.org/debian-security
         distribution: bullseye
         flat: false
         cleanup_policies:
-          - apt_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}apt_cleanup{% else %} {% endif %}"
     nexus_repos_helm_hosted:
       - name: helm-hosted
     nexus_repos_helm_proxy:
       - name: oxyno-zeta.github.io_helm-charts-v2
         remote_url: https://oxyno-zeta.github.io/helm-charts-v2/
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: dapr.github.io_helm-charts
         remote_url: https://dapr.github.io/helm-charts/
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: charts.bitnami.com_bitnami
         remote_url: https://charts.bitnami.com/bitnami
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: aws.github.io_eks-charts
         remote_url: https://aws.github.io/eks-charts
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: charts.crossplane.io_stable
         remote_url: https://charts.crossplane.io/stable
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: argoproj.github.io_argo-helm
         remote_url: https://argoproj.github.io/argo-helm/
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: bitnami-labs.github.io_sealed-secrets
         remote_url: https://bitnami-labs.github.io/sealed-secrets
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
       - name: jaegertracing.github.io_helm-charts
         remote_url: https://jaegertracing.github.io/helm-charts
         cleanup_policies:
-          - helm_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}helm_cleanup{% else %} {% endif %}"
     nexus_repos_conda_proxy:
       - name: anaconda
         remote_url: 'https://conda.anaconda.org/anaconda/'
         cleanup_policies:
-          - conda_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}conda_cleanup{% else %} {% endif %}"
       - name: plotly
         remote_url: 'https://conda.anaconda.org/plotly/'
         cleanup_policies:
-          - conda_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}conda_cleanup{% else %} {% endif %}"
       - name: conda-forge
         remote_url: 'https://conda.anaconda.org/conda-forge/'
         cleanup_policies:
-          - conda_cleanup
+          - "{% if nexus_enabled_cleanup_policies %}conda_cleanup{% else %} {% endif %}"
 
   roles:
     - ansible-thoteam.nexus3-oss
