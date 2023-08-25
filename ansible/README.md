@@ -88,7 +88,7 @@ pip:
 ```html
 pypi.org - proxy for https://pypi.org/
 pypi-hosted - hosted repository for custom pypi artifacts
-pypi-group - group repository, includes all listed above pypi repos
+pypi-all - group repository, includes all listed above pypi repos
 ```
 
 helm:
