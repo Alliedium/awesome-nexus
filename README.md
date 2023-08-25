@@ -1556,11 +1556,11 @@ If you are going to use pip to download pip dependencies, create a `pip.conf` fi
 Create a new file under your home directory `$HOME/.config/pip/pip.conf` with the following content:
 ```
 [global]
-index-url = http://localhost:8081/repository/pypi-group/simple
+index-url = http://localhost:8081/repository/pypi-all/simple
 trusted-host = localhost
 ```
 
-Note that *http://localhost:8081/repository/pypi-group/* - is URL for group repository which contains proxy repository for https://pypi.org/
+Note that *http://localhost:8081/repository/pypi-all/* - is URL for group repository which contains proxy repository for https://pypi.org/
 
 But don't forget to add **/simple** postfix to the end of index-url
 
@@ -1602,7 +1602,7 @@ For poetry ([Learn about Poetry](https://habr.com/ru/post/593529/)):
 ```
 git clone https://github.com/nsidnev/fastapi-realworld-example-app
 cd fastapi-realworld-example-app
-poetry source add --default nexus http://127.0.0.1:8081/repository/pypi-group/simple
+poetry source add --default nexus http://127.0.0.1:8081/repository/pypi-all/simple
 poetry install
 ```
 
